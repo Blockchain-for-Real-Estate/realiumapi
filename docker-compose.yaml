@@ -1,0 +1,19 @@
+# Connect to DB for testing: docker exec -it CONTAINER_ID psql -U devjournal_test -d devjournal
+version: '3.8'
+
+volumes:
+    db_data:
+
+services:
+    db:
+        build: ./db
+        container_name: realiumdb
+        volumes:
+            - db_data:/var/lib/postgresql/data/pgdata
+        environment:
+            PGDATA: /var/lib/postgresql/data/pgdata
+            POSTGRES_USER: realium
+            POSTGRES_PASSWORD: capstone21
+            POSTGRES_DB: realiumdb
+        ports:
+            - '5432:5432'
