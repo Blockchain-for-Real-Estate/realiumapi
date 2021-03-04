@@ -1,4 +1,4 @@
 # realiumapi
 
 ## Start up docker
-`docker up -d`
+`docker compose up`
