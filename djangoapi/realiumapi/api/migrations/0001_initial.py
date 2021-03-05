@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name='Asset',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('assetId', models.UUIDField()),
+                ('assetId', models.IntegerField()),
                 ('assetName', models.CharField(max_length=200)),
                 ('assetTypeId', models.IntegerField()),
                 ('opportunityType', models.CharField(max_length=60)),
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
             name='User',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('userId', models.UUIDField()),
+                ('userId', models.IntegerField()),
                 ('fullName', models.CharField(max_length=100)),
                 ('investorTypeId', models.SmallIntegerField()),
                 ('kycVerified', models.BooleanField()),
