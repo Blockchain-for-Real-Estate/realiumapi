@@ -19,7 +19,7 @@ class User(models.Model):
         return self.fullName
 
 class Asset(models.Model):
-    assetId = models.IntegerField(max_length=50)
+    assetId = models.IntegerField()
     assetName = models.CharField(max_length=200)
     assetTypeId = models.IntegerField()
     opportunityType = models.CharField(max_length=60)
