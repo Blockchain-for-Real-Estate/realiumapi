@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets
-from .serializers import HeroSerializer, UserSerializer, AssetSerializer
-from .models import Hero, User, Asset
+from .serializers import HeroSerializer, UserSerializer, AssetSerializer, TransactionSerializer
+from .models import Hero, User, Asset, Transaction
 
 import logging
 
@@ -83,6 +83,33 @@ class UserView(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class TransactionView(APIView):
+
+    serializer_class = user_serializers.TransactionSerializer
+    transaction_model = user_models.Transaction
+
+    def get(self, request, pk):
+        try:
+            transaction_obj = transaction_model.objects.get(transactionId=pk)
+        except self.user_model.DoesNotExist:
+            return Response('Transaction not found in database',
+                            status=status.HTTP_404_NOT_FOUND)
+
+        serializer = self.serializer_class(
+            transaction_obj
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = self.serializer_class(
+            data=request.data
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class HeroViewSet(viewsets.ModelViewSet):
     queryset = Hero.objects.all().order_by('name')
     serializer_class = HeroSerializer
@@ -94,3 +121,7 @@ class UserViewSet(viewsets.ModelViewSet):
 class AssetViewSet(viewsets.ModelViewSet):
     queryset = Asset.objects.all().order_by('assetName')
     serializer_class = AssetSerializer
+
+class TransactionViewSet(viewsets.ModelViewSet):
+    queryset = Transaction.objects.all().order_by('transactionDateTime')
+    serializer_class = TransactionSerializer
