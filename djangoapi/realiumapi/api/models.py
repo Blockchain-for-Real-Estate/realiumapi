@@ -45,6 +45,8 @@ class Asset(models.Model):
         return self.assetName
 
 class Transaction(models.Model):
+    class Meta:
+        ordering = ['-transactionDateTime']
     transactionId = models.CharField(max_length=200, null=True)
     transactionTypeId = models.IntegerField()
     assetId = models.ForeignKey(

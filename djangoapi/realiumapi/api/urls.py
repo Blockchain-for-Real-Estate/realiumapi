@@ -14,6 +14,7 @@ urlpatterns = [
     # path('', views.apiOverview, name="api-overview"),
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('assets/<str:pk>/transactions', views.AssetView.as_view(), name="asset-transactions"),
     path('assets/<str:pk>', views.AssetView.as_view(), name="asset-detail"),
     path('users/<str:pk>', views.UserView.as_view(), name="user-detail"),
     path('transactions/<str:pk>', views.TransactionView.as_view(), name="transaction-detail")

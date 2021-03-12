@@ -16,7 +16,6 @@ import rest_framework.status as status
 import rest_framework.response as response
 import rest_framework.reverse as reverse
 import rest_framework.views as views
-import rest_framework.decorators as api_view
 
 import realiumapi.settings as settings
 import api.models as user_models
@@ -31,7 +30,7 @@ class AssetView(APIView):
 
     serializer_class = user_serializers.AssetSerializer
     asset_model = user_models.Asset
-    
+
     def get(self, request, pk):
         try:
             asset_obj = self.asset_model.objects.get(assetId=pk)
@@ -63,7 +62,7 @@ class UserView(APIView):
 
     def get(self, request, pk):
         try:
-            user_obj = user_model.objects.get(userId=pk)
+            user_obj = self.user_model.objects.get(userId=pk)
         except self.user_model.DoesNotExist:
             return Response('User has not been created yet',
                             status=status.HTTP_404_NOT_FOUND)
@@ -90,13 +89,14 @@ class TransactionView(APIView):
 
     def get(self, request, pk):
         try:
-            transaction_obj = transaction_model.objects.get(transactionId=pk)
-        except self.user_model.DoesNotExist:
+            transaction_arr = self.transaction_model.objects.filter(assetId=pk)
+        except self.transaction_model.DoesNotExist:
             return Response('Transaction not found in database',
                             status=status.HTTP_404_NOT_FOUND)
 
         serializer = self.serializer_class(
-            transaction_obj
+            transaction_arr,
+            many=True
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
