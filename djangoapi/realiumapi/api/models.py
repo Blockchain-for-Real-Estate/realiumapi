@@ -9,7 +9,7 @@ class Hero(models.Model):
         return self.name
 
 class User(models.Model):
-    userId = models.IntegerField()
+    userId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     fullName = models.CharField(max_length=100)
     investorTypeId = models.SmallIntegerField()
     kycVerified = models.BooleanField()
@@ -19,7 +19,7 @@ class User(models.Model):
         return self.fullName
 
 class Asset(models.Model):
-    assetId = models.CharField(max_length=200, null=True)
+    assetId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     assetName = models.CharField(max_length=200, null=True)
     assetTypeId = models.IntegerField(null=True)
     listingType = models.CharField(max_length=60, null=True)
@@ -47,7 +47,7 @@ class Asset(models.Model):
 class Transaction(models.Model):
     class Meta:
         ordering = ['-transactionDateTime']
-    transactionId = models.CharField(max_length=200, null=True)
+    transactionId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     transactionTypeId = models.IntegerField()
     assetId = models.ForeignKey(
         Asset,
@@ -57,5 +57,4 @@ class Transaction(models.Model):
     )
     transactionHash = models.CharField(max_length=200, null=True)
     hashVersion = models.IntegerField()
-    #blockId = models.CharField(max_length=200, null=True)
     transactionDateTime = models.DateTimeField(null=True)
