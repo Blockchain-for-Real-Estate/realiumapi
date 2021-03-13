@@ -15,6 +15,8 @@ class User(models.Model):
     kycVerified = models.BooleanField()
     walletAddress = models.CharField(max_length=30)
     email = models.EmailField()
+    avaxusername = models.CharField(max_length=30)
+    avaxpassword = models.CharField(max_length=100)
     def __str__(self):
         return self.fullName
 
@@ -55,7 +57,10 @@ class Transaction(models.Model):
         null=True,
         on_delete=models.SET_NULL
     )
-    transactionHash = models.CharField(max_length=200, null=True)
-    hashVersion = models.IntegerField()
+    price = models.IntegerField() #this is the amount of AVAX being sent to seller
+    sender = models.CharField(max_length=200) #sender of the NFT
+    receiver = models.CharField(max_length=200) #receiver of NFT
+    transactionNFTId = models.CharField(max_length=200) #the transaction of sending the NFT
+    transactionAvaxId = models.CharField(max_length=200) #the transaction of sending the AVAX
     #blockId = models.CharField(max_length=200, null=True)
     transactionDateTime = models.DateTimeField(null=True)
