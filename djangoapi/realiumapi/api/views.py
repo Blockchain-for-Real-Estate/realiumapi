@@ -3,7 +3,9 @@ from rest_framework import viewsets
 from .serializers import HeroSerializer, UserSerializer, AssetSerializer, TransactionSerializer
 from .models import Hero, User, Asset, Transaction
 
+import requests
 import logging
+import datetime
 
 import django.core.exceptions as django_exceptions
 import django.contrib.auth.models as auth_models
@@ -25,6 +27,8 @@ import api.serializers as user_serializers
 APIView = views.APIView
 Response = response.Response
 SessionAuth = auth.SessionAuthentication
+
+AVALANCHENODE = 'http://144.126.214.126/ext/bc/X'
 
 class AssetView(APIView):
 
@@ -101,8 +105,151 @@ class TransactionView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        #Check for NFT ownership
+        transactionNFTId = str('')
+        transactionAvaxId = str('')
+        try:
+            nftOwnershipResponse = requests.post(AVALANCHENODE, 
+                                    data =
+                                        {
+                                            'jsonrpc':'2.0',
+                                            'id'     : 1,
+                                            'method' :'avm.getBalance',
+                                            'params' :{
+                                                'address': '{request.data.sender}',
+                                                'assetID': '{request.data.assetid}'
+                                            }
+                                    }) 
+
+            print("nftownershipresponse", nftOwnershipResponse)
+
+            #THROW EXCEPTION NFT NOT FOUND
+            if nftOwnershipResponse.result.balance == 0:
+                x=0
+        except requests.exceptions.RequestException as err:
+            print ("Oops: Somebody got ya ",err)
+        except requests.exceptions.HTTPError as errh:
+            print ("Http Error:",errh)
+        except requests.exceptions.ConnectionError as errc:
+            print ("Error Connecting:",errc)
+        except requests.exceptions.Timeout as errt:
+            print ("Timeout Error:",errt) 
+
+        try:
+            #Check for Avax funds            
+            avaxFundsResponse = requests.post(AVALANCHENODE, 
+                                    data =
+                                        {
+                                            'jsonrpc':'2.0',
+                                            'id'     : 1,
+                                            'method' :'avm.getBalance',
+                                            'params' :{
+                                                'address': '{request.data.receiver}',
+                                                'assetID': 'U8iRqJoiJm8xZHAacmvYyZVwqQx6uDNtQeP3CQ6fcgQk3JqnK' #AVAX assetId
+                                            }
+                                        }) 
+            
+            print("avaxFundsResponse", avaxFundsResponse)
+
+            #THROW EXCEPTION INSUFFICIENT FUNDS
+            if avaxFundsResponse.balance < request.price:
+                #throw exception
+                x=0
+        except requests.exceptions.RequestException as err:
+            print ("Oops: Somebody got ya ",err)
+        except requests.exceptions.HTTPError as errh:
+            print ("Http Error:",errh)
+        except requests.exceptions.ConnectionError as errc:
+            print ("Error Connecting:",errc)
+        except requests.exceptions.Timeout as errt:
+            print ("Timeout Error:",errt) 
+            
+        #Avalanche API
+        #transfer NFT to receiver
+        try: 
+            transferNFTResponse = requests.post(AVALANCHENODE, 
+                                    data =
+                                        {
+                                            'jsonrpc':'2.0',
+                                            'id'     :1,
+                                            'method' :'avm.sendNFT',
+                                            'params' :{ 
+                                                'assetID' : '{request.data.assetId}',
+                                                'from'    : '{[request.data.sender]}',
+                                                'to'      : '{request.data.receiver}',
+                                                'groupID' : 0,
+                                                'changeAddr': '{{xchainAddress}}', #which xchain?
+                                                'username': '{request.data.sender.username}',
+                                                'password': '{request.data.sender.password}' 
+                                            }
+                                        })
+            
+            print("transferNFTResponse", transferNFTResponse)
+
+        except requests.exceptions.RequestException as err:
+            print ("Oops: Somebody got ya ",err)
+        except requests.exceptions.HTTPError as errh:
+            print ("Http Error:",errh)
+        except requests.exceptions.ConnectionError as errc:
+            print ("Error Connecting:",errc)
+        except requests.exceptions.Timeout as errt:
+            print ("Timeout Error:",errt) 
+            ##EXCEPTION NFT NOT TRANSFERRED
+        try:
+            #transfer AVAX to sender            
+            transferAvaxResponse = requests.post(AVALANCHENODE, 
+                                    data =
+                                        {
+                                            'jsonrpc':'2.0',
+                                            'id'     :1,
+                                            'method' :'avm.sendNFT',
+                                            'params' :{ 
+                                                'assetID' : 'U8iRqJoiJm8xZHAacmvYyZVwqQx6uDNtQeP3CQ6fcgQk3JqnK',
+                                                'from'    : '{[request.data.receiver]}',
+                                                'to'      : '{request.data.sender}',
+                                                'groupID' : 0,
+                                                'changeAddr': '{{xchainAddress}}', #which xchain?
+                                                'username': '{request.data.receiver.username}',
+                                                'password': '{request.data.receiver.password}' 
+                                            }
+                                        })
+
+            print("transferAvaxResponse", transferAvaxResponse)
+
+        except:
+            #EXCEPTION THROWN FUNDS NOT SENT AND NFT RETURNED
+            try:
+                transferBackNFTResponse = requests.post(AVALANCHENODE, 
+                                data =
+                                    {
+                                        'jsonrpc':'2.0',
+                                        'id'     :1,
+                                        'method' :'avm.sendNFT',
+                                        'params' :{ 
+                                            'assetID' : '{request.data.assetId}',
+                                            'from'    : '{request.data.receiver}',
+                                            'to'      : '{[request.data.sender]}',
+                                            'groupID' : 0,
+                                            'changeAddr': '{{xchainAddress}}', #which xchain?
+                                            'username': '{request.data.receiver.username}',
+                                            'password': '{request.data.receiver.password}' 
+                                        }
+                                    })
+                
+                print("transferBackNFTResponse", transferBackNFTResponse)
+            except requests.exceptions.RequestException as err:
+                print ("Oops: Somebody got ya ",err)
+            except requests.exceptions.HTTPError as errh:
+                print ("Http Error:",errh)
+            except requests.exceptions.ConnectionError as errc:
+                print ("Error Connecting:",errc)
+            except requests.exceptions.Timeout as errt:
+                print ("Timeout Error:",errt) 
+
+        transaction = Transaction(request.assetId, request.price, None, request.transactionTypeId, request.sender, request.receiver,transactionNFTId, transactionAvaxId, datetime.datetime.now())
+
         serializer = self.serializer_class(
-            data=request.data
+            data=transaction
         )
 
         if serializer.is_valid():

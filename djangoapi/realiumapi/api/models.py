@@ -1,5 +1,6 @@
 from django.db import models
 import uuid
+from utils import create_new_ref_number
 
 # Create your models here.
 class Hero(models.Model):
@@ -15,6 +16,8 @@ class User(models.Model):
     kycVerified = models.BooleanField()
     walletAddress = models.CharField(max_length=30)
     email = models.EmailField()
+    avaxusername = models.CharField(max_length=30)
+    avaxpassword = models.CharField(max_length=100)
     def __str__(self):
         return self.fullName
 
@@ -47,15 +50,22 @@ class Asset(models.Model):
 class Transaction(models.Model):
     class Meta:
         ordering = ['-transactionDateTime']
-    transactionId = models.CharField(max_length=200, null=True)
-    transactionTypeId = models.IntegerField()
+    txId = models.CharField(
+        max_length = 20,
+        editable=False,
+        null=False,            
+        unique=True,
+        default=create_new_ref_number()) #create_new_ref_number
+    txTypeId = models.IntegerField()
     assetId = models.ForeignKey(
         Asset,
         verbose_name="Asset",
         null=True,
         on_delete=models.SET_NULL
     )
-    transactionHash = models.CharField(max_length=200, null=True)
-    hashVersion = models.IntegerField()
-    #blockId = models.CharField(max_length=200, null=True)
-    transactionDateTime = models.DateTimeField(null=True)
+    price = models.IntegerField() #this is the amount of AVAX being sent to seller
+    sender = models.CharField(max_length=200) #sender of the NFT
+    receiver = models.CharField(max_length=200) #receiver of NFT
+    txNFTId = models.CharField(max_length=200) #the transaction of sending the NFT
+    txAvaxId = models.CharField(max_length=200) #the transaction of sending the AVAX
+    txDateTime = models.DateTimeField(auto_now_add=True)
