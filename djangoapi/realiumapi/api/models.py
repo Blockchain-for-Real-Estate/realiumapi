@@ -1,4 +1,5 @@
 from django.db import models
+import django.contrib.auth.models as auth_models
 import uuid
 
 # Create your models here.
@@ -10,6 +11,12 @@ class Hero(models.Model):
 
 class User(models.Model):
     userId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(
+        auth_models.User,
+        on_delete=models.CASCADE,
+        related_name='user',
+        null=True
+    )
     fullName = models.CharField(max_length=100)
     investorTypeId = models.SmallIntegerField()
     kycVerified = models.BooleanField()
