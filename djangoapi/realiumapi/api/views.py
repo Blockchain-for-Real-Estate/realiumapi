@@ -60,6 +60,7 @@ class UserView(APIView):
 
     serializer_class = user_serializers.UserSerializer
     user_model = user_models.User
+    permission_classes = (IsAuthenticated,) 
 
     def get(self, request, pk):
         try:
@@ -87,6 +88,7 @@ class TransactionView(APIView):
 
     serializer_class = user_serializers.TransactionSerializer
     transaction_model = user_models.Transaction
+    permission_classes = (IsAuthenticated,) 
 
     def get(self, request, pk):
         try:
@@ -124,5 +126,5 @@ class AssetViewSet(viewsets.ModelViewSet):
     serializer_class = AssetSerializer
 
 class TransactionViewSet(viewsets.ModelViewSet):
-    queryset = Transaction.objects.all().order_by('transactionDateTime')
+    queryset = Transaction.objects.all().order_by('txDateTime')
     serializer_class = TransactionSerializer
