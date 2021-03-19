@@ -1,7 +1,6 @@
 from django.db import models
 import django.contrib.auth.models as auth_models
 import uuid
-from utils import create_new_ref_number
 
 # Create your models here.
 class Hero(models.Model):
