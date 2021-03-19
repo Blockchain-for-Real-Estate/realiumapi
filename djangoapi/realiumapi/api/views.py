@@ -11,7 +11,7 @@ import django.db.models.functions as db_functions
 import django.http as http
 
 import rest_framework.authentication as auth
-import rest_framework.permissions as permissions
+from rest_framework.permissions import IsAuthenticated 
 import rest_framework.status as status
 import rest_framework.response as response
 import rest_framework.reverse as reverse
@@ -30,6 +30,7 @@ class AssetView(APIView):
 
     serializer_class = user_serializers.AssetSerializer
     asset_model = user_models.Asset
+    permission_classes = (IsAuthenticated,) 
 
     def get(self, request, pk):
         try:
@@ -59,6 +60,7 @@ class UserView(APIView):
 
     serializer_class = user_serializers.UserSerializer
     user_model = user_models.User
+    permission_classes = (IsAuthenticated,) 
 
     def get(self, request, pk):
         try:
@@ -86,6 +88,7 @@ class TransactionView(APIView):
 
     serializer_class = user_serializers.TransactionSerializer
     transaction_model = user_models.Transaction
+    permission_classes = (IsAuthenticated,) 
 
     def get(self, request, pk):
         try:
@@ -123,5 +126,5 @@ class AssetViewSet(viewsets.ModelViewSet):
     serializer_class = AssetSerializer
 
 class TransactionViewSet(viewsets.ModelViewSet):
-    queryset = Transaction.objects.all().order_by('transactionDateTime')
+    queryset = Transaction.objects.all().order_by('txDateTime')
     serializer_class = TransactionSerializer

@@ -1,4 +1,5 @@
 from django.urls import include, path
+from rest_framework.authtoken.views import obtain_auth_token 
 from rest_framework import routers
 from . import views
 
@@ -14,6 +15,7 @@ urlpatterns = [
     # path('', views.apiOverview, name="api-overview"),
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('auth/', obtain_auth_token, name='api_token_auth'),
     path('assets/<str:pk>/transactions', views.AssetView.as_view(), name="asset-transactions"),
     path('assets/<str:pk>', views.AssetView.as_view(), name="asset-detail"),
     path('users/<str:pk>', views.UserView.as_view(), name="user-detail"),
