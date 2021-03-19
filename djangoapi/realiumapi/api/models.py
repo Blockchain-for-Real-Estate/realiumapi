@@ -1,4 +1,5 @@
 from django.db import models
+import django.contrib.auth.models as auth_models
 import uuid
 from utils import create_new_ref_number
 
@@ -10,7 +11,12 @@ class Hero(models.Model):
         return self.name
 
 class User(models.Model):
-    userId = models.IntegerField()
+    userId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(
+        auth_models.User,
+        on_delete=models.CASCADE,
+        related_name='user'
+    )
     fullName = models.CharField(max_length=100)
     investorTypeId = models.SmallIntegerField()
     kycVerified = models.BooleanField()
@@ -22,7 +28,7 @@ class User(models.Model):
         return self.fullName
 
 class Asset(models.Model):
-    assetId = models.CharField(max_length=200, null=True)
+    assetId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     assetName = models.CharField(max_length=200, null=True)
     assetTypeId = models.IntegerField(null=True)
     listingType = models.CharField(max_length=60, null=True)
@@ -46,18 +52,13 @@ class Asset(models.Model):
     llc = models.CharField(max_length=60, null=True)
     def __str__(self):
         return self.assetName
-
+        
 class Transaction(models.Model):
     class Meta:
-        ordering = ['-transactionDateTime']
-    txId = models.CharField(
-        max_length = 20,
-        editable=False,
-        null=False,            
-        unique=True,
-        default=create_new_ref_number()) #create_new_ref_number
+        ordering = ['-txDateTime']
+    txId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     txTypeId = models.IntegerField()
-    assetId = models.ForeignKey(
+    asset = models.ForeignKey(
         Asset,
         verbose_name="Asset",
         null=True,
