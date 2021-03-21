@@ -12,6 +12,8 @@ import django.contrib.auth.models as auth_models
 import django.db.models.functions as db_functions
 import django.http as http
 
+from django_filters.rest_framework import DjangoFilterBackend
+
 import rest_framework.authentication as auth
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 import rest_framework.status as status
@@ -35,10 +37,14 @@ class AssetView(APIView):
     serializer_class = user_serializers.AssetSerializer
     asset_model = user_models.Asset
     permission_classes = (IsAuthenticatedOrReadOnly,) 
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['tokenId', 'assetName', 'city', 'state', 'zipCode', 'listedrice', 'listed', 'details']
 
     def get(self, request, pk):
+
+        
         try:
-            asset_obj = self.asset_model.objects.get(assetId=pk)
+            asset_obj = self.asset_model.objects.all()
         except self.asset_model.DoesNotExist:
             return Response('Asset object has not been created yet',
                             status=status.HTTP_404_NOT_FOUND)
@@ -60,15 +66,36 @@ class AssetView(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    #allow asset to be set for sale and listing price and if listed or not
+    def put(self, request):
+
+        try:
+            transaction_arr = self.asset_model.objects.filter(assetId=pk)
+        except self.transaction_model.DoesNotExist:
+            return Response('Transaction not found in database',
+                            status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = self.serializer_class(
+            transaction_arr,
+            data=request.data
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class UserView(APIView):
 
     serializer_class = user_serializers.UserSerializer
     user_model = user_models.User
     permission_classes = (IsAuthenticatedOrReadOnly,) 
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['fullName','walletAddress']
 
     def get(self, request, pk):
         try:
-            user_obj = self.user_model.objects.get(userId=pk)
+            user_obj = self.user_model.objects.all()
         except self.user_model.DoesNotExist:
             return Response('User has not been created yet',
                             status=status.HTTP_404_NOT_FOUND)
@@ -93,10 +120,12 @@ class TransactionView(APIView):
     serializer_class = user_serializers.TransactionSerializer
     transaction_model = user_models.Transaction
     permission_classes = (IsAuthenticatedOrReadOnly,) 
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['sender', 'receiver', 'txDateTime', 'asset', 'txNFTId', 'txAvaxId',]
 
     def get(self, request, pk):
         try:
-            transaction_arr = self.transaction_model.objects.filter(assetId=pk)
+            transaction_arr = self.transaction_model.objects.all()
         except self.transaction_model.DoesNotExist:
             return Response('Transaction not found in database',
                             status=status.HTTP_404_NOT_FOUND)
@@ -109,8 +138,8 @@ class TransactionView(APIView):
 
     def post(self, request):
         #Check for NFT ownership
-        transactionNFTId = str('')
-        transactionAvaxId = str('')
+        txNFTId = str('')
+        txAvaxId = str('')
         try:
             nftOwnershipResponse = requests.post(AVALANCHENODE, 
                                     data =
@@ -249,10 +278,28 @@ class TransactionView(APIView):
             except requests.exceptions.Timeout as errt:
                 print ("Timeout Error:",errt) 
 
-        transaction = Transaction(request.assetId, request.price, None, request.transactionTypeId, request.sender, request.receiver,transactionNFTId, transactionAvaxId, datetime.datetime.now())
+        transaction = Transaction(request.assetId, request.price, None, request.txTypeId, request.sender, request.receiver,txNFTId, txAvaxId, None)
 
         serializer = self.serializer_class(
             data=transaction
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+
+        try:
+            transaction_arr = self.transaction_model.objects.filter(assetId=request.asset.assestId)
+        except self.transaction_model.DoesNotExist:
+            return Response('Transaction not found in database',
+                            status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = self.serializer_class(
+            transaction_arr,
+            data=request.data
         )
 
         if serializer.is_valid():

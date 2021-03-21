@@ -34,14 +34,16 @@ class Asset(models.Model):
     propertyType = models.CharField(max_length=60, null=True)
     legalTypeId = models.SmallIntegerField(null=True)
     tokenId = models.CharField(max_length=60, null=True)
+    tokenNumber = models.CharField(max_length=60, null=True)
     parcelId = models.CharField(max_length=60, null=True)
     streetAddress = models.CharField(max_length=200, null=True)
     city = models.CharField(max_length=60, null=True)
     state = models.CharField(max_length=60, null=True)
     zipCode = models.CharField(max_length=10, null=True)
-    price = models.IntegerField(null=True)
+    originalPrice = models.DecimalField(max_digits= 1000, decimal_places=2, null=True)
+    listedrice = models.DecimalField(max_digits= 1000, decimal_places=2,null=True)
     funded = models.IntegerField(null=True)
-    forcastedIncome = models.IntegerField(null=True)
+    forcastedIncome = models.DecimalField(max_digits= 1000, decimal_places=2, null=True)
     minInvestment = models.IntegerField(null=True)
     maxInvestment = models.IntegerField(null=True)
     share = models.IntegerField(null=True)
@@ -49,6 +51,8 @@ class Asset(models.Model):
     country = models.CharField(max_length=60, null=True)
     acerage = models.FloatField(max_length=60, null=True)
     llc = models.CharField(max_length=60, null=True)
+    details = models.JSONField(null=True)
+    listed = models.BooleanField(default=False)
     def __str__(self):
         return self.assetName
         
