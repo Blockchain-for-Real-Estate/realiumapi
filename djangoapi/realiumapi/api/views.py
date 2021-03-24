@@ -12,7 +12,7 @@ import django.contrib.auth.models as auth_models
 import django.db.models.functions as db_functions
 import django.http as http
 
-from django_filters.rest_framework import DjangoFilterBackend
+import django_filters.rest_framework
 
 import rest_framework.authentication as auth
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -20,6 +20,7 @@ import rest_framework.status as status
 import rest_framework.response as response
 import rest_framework.reverse as reverse
 import rest_framework.views as views
+from rest_framework import generics
 
 import realiumapi.settings as settings
 import api.models as user_models
@@ -32,29 +33,33 @@ SessionAuth = auth.SessionAuthentication
 
 AVALANCHENODE = 'http://144.126.214.126/ext/bc/X'
 
-class AssetView(APIView):
-
+class AssetView(generics.GenericAPIView):
+    # def get(self, request):
+    #     assets = Asset.objects.filter(listed=True)
+    #     serializer_class = user_serializers.AssetSerializer(assets, many=True)
+    #     return Response({"assets": serializer_class})
     serializer_class = user_serializers.AssetSerializer
     asset_model = user_models.Asset
     permission_classes = (IsAuthenticatedOrReadOnly,) 
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['tokenId', 'assetName', 'city', 'state', 'zipCode', 'listedrice', 'listed', 'details']
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+    filterset_fields = ('listed','city','state','assetId','assetName','assetTypeId','listingType','propertyType','legalTypeId','tokenId',
+                        'tokenNumber','parcelId','streetAddress','zipCode','originalPrice','listedPrice','forcastedIncome','minInvestment','maxInvestment','share','yearBuilt'
+                        ,'country','acerage','llc','listed')
 
-    def get(self, request, pk):
-
+    def get(self, request):
         
-        try:
-            asset_obj = self.asset_model.objects.all()
+        try: 
+            asset_obj = self.filter_queryset(self.asset_model.objects.all())
         except self.asset_model.DoesNotExist:
             return Response('Asset object has not been created yet',
                             status=status.HTTP_404_NOT_FOUND)
 
         serializer = self.serializer_class(
             asset_obj,
-            many=False
+            many=True
         )
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"assets":serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request):
         serializer = self.serializer_class(
@@ -67,16 +72,17 @@ class AssetView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     #allow asset to be set for sale and listing price and if listed or not
-    def put(self, request):
+    def put(self, request, pk):
 
         try:
-            transaction_arr = self.asset_model.objects.filter(assetId=pk)
-        except self.transaction_model.DoesNotExist:
+            print(request.data)
+            asset_obj = self.asset_model.objects.filter(assetId=pk).first()
+        except self.asset_model.DoesNotExist:
             return Response('Transaction not found in database',
                             status=status.HTTP_404_NOT_FOUND)
         
         serializer = self.serializer_class(
-            transaction_arr,
+            asset_obj,
             data=request.data
         )
 
@@ -90,7 +96,7 @@ class UserView(APIView):
     serializer_class = user_serializers.UserSerializer
     user_model = user_models.User
     permission_classes = (IsAuthenticatedOrReadOnly,) 
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = ['fullName','walletAddress']
 
     def get(self, request, pk):
@@ -115,17 +121,17 @@ class UserView(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-class TransactionView(APIView):
+class TransactionView(generics.GenericAPIView):
 
     serializer_class = user_serializers.TransactionSerializer
     transaction_model = user_models.Transaction
     permission_classes = (IsAuthenticatedOrReadOnly,) 
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['sender', 'receiver', 'txDateTime', 'asset', 'txNFTId', 'txAvaxId',]
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+    filterset_fields = ('sender', 'receiver', 'txDateTime', 'asset', 'txNFTId', 'txAvaxId','price','txTypeId','txId')
 
-    def get(self, request, pk):
+    def get(self, request):
         try:
-            transaction_arr = self.transaction_model.objects.all()
+            transaction_arr = self.filter_queryset(self.transaction_model.objects.all())
         except self.transaction_model.DoesNotExist:
             return Response('Transaction not found in database',
                             status=status.HTTP_404_NOT_FOUND)
@@ -134,7 +140,17 @@ class TransactionView(APIView):
             transaction_arr,
             many=True
         )
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"transactions":serializer.data}, status=status.HTTP_200_OK)
+
+    # def post(self, request):
+    #     serializer = self.serializer_class(
+    #         data=request.data
+    #     )
+
+    #     if serializer.is_valid():
+    #         serializer.save()
+
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         #Check for NFT ownership
@@ -148,8 +164,8 @@ class TransactionView(APIView):
                                             'id'     : 1,
                                             'method' :'avm.getBalance',
                                             'params' :{
-                                                'address': '{request.data.sender}',
-                                                'assetID': '{request.data.assetid}'
+                                                'address': request.data['sender'],
+                                                'assetID': request.data['assetid']
                                             }
                                     }) 
 
@@ -157,7 +173,8 @@ class TransactionView(APIView):
 
             #THROW EXCEPTION NFT NOT FOUND
             if nftOwnershipResponse.result.balance == 0:
-                x=0
+                raise requests.exceptions.RequestException("NFT is not owned.")
+                exit
         except requests.exceptions.RequestException as err:
             print ("Oops: Somebody got ya ",err)
         except requests.exceptions.HTTPError as errh:
@@ -176,7 +193,7 @@ class TransactionView(APIView):
                                             'id'     : 1,
                                             'method' :'avm.getBalance',
                                             'params' :{
-                                                'address': '{request.data.receiver}',
+                                                'address': request.data['receiver'],
                                                 'assetID': 'U8iRqJoiJm8xZHAacmvYyZVwqQx6uDNtQeP3CQ6fcgQk3JqnK' #AVAX assetId
                                             }
                                         }) 
@@ -184,7 +201,7 @@ class TransactionView(APIView):
             print("avaxFundsResponse", avaxFundsResponse)
 
             #THROW EXCEPTION INSUFFICIENT FUNDS
-            if avaxFundsResponse.balance < request.price:
+            if avaxFundsResponse.balance < request.data['price']:
                 #throw exception
                 x=0
         except requests.exceptions.RequestException as err:
@@ -206,13 +223,13 @@ class TransactionView(APIView):
                                             'id'     :1,
                                             'method' :'avm.sendNFT',
                                             'params' :{ 
-                                                'assetID' : '{request.data.assetId}',
-                                                'from'    : '{[request.data.sender]}',
-                                                'to'      : '{request.data.receiver}',
+                                                'assetID' : request.data['assetid'],
+                                                'from'    : request.data['sender'],
+                                                'to'      : request.data['receiver'],
                                                 'groupID' : 0,
                                                 'changeAddr': '{{xchainAddress}}', #which xchain?
-                                                'username': '{request.data.sender.username}',
-                                                'password': '{request.data.sender.password}' 
+                                                'username': request.data['username'],
+                                                'password': request.data['password'] 
                                             }
                                         })
             
@@ -236,13 +253,13 @@ class TransactionView(APIView):
                                             'id'     :1,
                                             'method' :'avm.sendNFT',
                                             'params' :{ 
-                                                'assetID' : 'U8iRqJoiJm8xZHAacmvYyZVwqQx6uDNtQeP3CQ6fcgQk3JqnK',
-                                                'from'    : '{[request.data.receiver]}',
-                                                'to'      : '{request.data.sender}',
+                                                'assetID' : 'U8iRqJoiJm8xZHAacmvYyZVwqQx6uDNtQeP3CQ6fcgQk3JqnK', #AssetId for AVAX
+                                                'from'    : request.data['receiver'],
+                                                'to'      : request.data['sender'],
                                                 'groupID' : 0,
                                                 'changeAddr': '{{xchainAddress}}', #which xchain?
-                                                'username': '{request.data.receiver.username}',
-                                                'password': '{request.data.receiver.password}' 
+                                                'username': request.data['username'],
+                                                'password': request.data['password'] 
                                             }
                                         })
 
@@ -258,13 +275,13 @@ class TransactionView(APIView):
                                         'id'     :1,
                                         'method' :'avm.sendNFT',
                                         'params' :{ 
-                                            'assetID' : '{request.data.assetId}',
-                                            'from'    : '{request.data.receiver}',
-                                            'to'      : '{[request.data.sender]}',
+                                            'assetID' : request.data['assetid'],
+                                            'from'    : request.data['receiver'],
+                                            'to'      : request.data['sender'],
                                             'groupID' : 0,
                                             'changeAddr': '{{xchainAddress}}', #which xchain?
-                                            'username': '{request.data.receiver.username}',
-                                            'password': '{request.data.receiver.password}' 
+                                            'username': request.data['username'],
+                                            'password': request.data['password'] 
                                         }
                                     })
                 
@@ -278,28 +295,10 @@ class TransactionView(APIView):
             except requests.exceptions.Timeout as errt:
                 print ("Timeout Error:",errt) 
 
-        transaction = Transaction(request.assetId, request.price, None, request.txTypeId, request.sender, request.receiver,txNFTId, txAvaxId, None)
+        transaction = Transaction(None,request.data['txTypeId'],request.data['assetid'],request.data['price'], request.data['sender'], request.data['receiver'],txNFTId, txAvaxId, None)
 
         serializer = self.serializer_class(
             data=transaction
-        )
-
-        if serializer.is_valid():
-            serializer.save()
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def put(self, request):
-
-        try:
-            transaction_arr = self.transaction_model.objects.filter(assetId=request.asset.assestId)
-        except self.transaction_model.DoesNotExist:
-            return Response('Transaction not found in database',
-                            status=status.HTTP_404_NOT_FOUND)
-        
-        serializer = self.serializer_class(
-            transaction_arr,
-            data=request.data
         )
 
         if serializer.is_valid():

@@ -13,11 +13,13 @@ router.register(r'transactions', views.TransactionViewSet)
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     # path('', views.apiOverview, name="api-overview"),
-    path('', include(router.urls)),
+    # path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('auth/', obtain_auth_token, name='api_token_auth'),
-    path('assets/<str:pk>/transactions', views.AssetView.as_view(), name="asset-transactions"),
-    path('assets/<str:pk>', views.AssetView.as_view(), name="asset-detail"),
+    path('assets/', views.AssetView.as_view()),
+    # path('assets/<str:pk>/transactions', views.AssetView.as_view(), name="asset-transactions"),
+    path('assets/<str:pk>', views.AssetView.as_view(), name="put"),
     path('users/<str:pk>', views.UserView.as_view(), name="user-detail"),
-    path('transactions/<str:pk>', views.TransactionView.as_view(), name="transaction-detail")
+    # path('transactions/<str:pk>', views.TransactionView.as_view(), name="transaction-detail")
+    path('transactions/', views.TransactionView.as_view())
 ]

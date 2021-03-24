@@ -41,7 +41,7 @@ class Asset(models.Model):
     state = models.CharField(max_length=60, null=True)
     zipCode = models.CharField(max_length=10, null=True)
     originalPrice = models.DecimalField(max_digits= 1000, decimal_places=2, null=True)
-    listedrice = models.DecimalField(max_digits= 1000, decimal_places=2,null=True)
+    listedPrice = models.DecimalField(max_digits= 1000, decimal_places=2,null=True)
     funded = models.IntegerField(null=True)
     forcastedIncome = models.DecimalField(max_digits= 1000, decimal_places=2, null=True)
     minInvestment = models.IntegerField(null=True)
@@ -60,14 +60,14 @@ class Transaction(models.Model):
     class Meta:
         ordering = ['-txDateTime']
     txId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    txTypeId = models.IntegerField()
+    txTypeId = models.IntegerField(null=True)
     asset = models.ForeignKey(
         Asset,
         verbose_name="Asset",
         null=True,
         on_delete=models.SET_NULL
     )
-    price = models.IntegerField() #this is the amount of AVAX being sent to seller
+    price = models.FloatField() #this is the amount of AVAX being sent to seller
     sender = models.CharField(max_length=200) #sender of the NFT
     receiver = models.CharField(max_length=200) #receiver of NFT
     txNFTId = models.CharField(max_length=200) #the transaction of sending the NFT
