@@ -10,9 +10,8 @@ class HeroSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('userId', 'fullName', 'investorTypeId','kycVerified','walletAddress','email')
+        fields = "__all__"
 
-#change __all__ in the future
 class AssetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Asset

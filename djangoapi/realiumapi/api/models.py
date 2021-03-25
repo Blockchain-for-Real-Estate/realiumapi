@@ -10,7 +10,7 @@ class Hero(models.Model):
         return self.name
 
 class User(models.Model):
-    userId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    realiumUserId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(
         auth_models.User,
         on_delete=models.CASCADE,
@@ -19,15 +19,15 @@ class User(models.Model):
     fullName = models.CharField(max_length=100)
     investorTypeId = models.SmallIntegerField()
     kycVerified = models.BooleanField()
-    walletAddress = models.CharField(max_length=30)
+    walletAddress = models.CharField(max_length=60)
     email = models.EmailField()
-    avaxusername = models.CharField(max_length=30)
-    avaxpassword = models.CharField(max_length=100)
+    avaxusername = models.CharField(max_length=30, null=True) #currently usename and password will not be used
+    avaxpassword = models.CharField(max_length=100, null=True)
     def __str__(self):
         return self.fullName
 
 class Asset(models.Model):
-    assetId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    assetId = models.CharField(primary_key=True,max_length=200)
     assetName = models.CharField(max_length=200, null=True)
     assetTypeId = models.IntegerField(null=True)
     listingType = models.CharField(max_length=60, null=True)
@@ -53,6 +53,12 @@ class Asset(models.Model):
     llc = models.CharField(max_length=60, null=True)
     details = models.JSONField(null=True)
     listed = models.BooleanField(default=False)
+    owner = models.ForeignKey(
+        User,
+        verbose_name="User",
+        null=True,
+        on_delete=models.SET_NULL
+    )
     def __str__(self):
         return self.assetName
         
