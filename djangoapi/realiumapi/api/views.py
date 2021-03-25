@@ -117,7 +117,7 @@ class UserView(APIView):
 
     def post(self, request):
 
-        newUser = AuthUser.objects.create_user(request.data['avaxusername'], request.data['email'], request.data['avaxpassword'])
+        newUser = AuthUser.objects.create_user(request.data['email'], request.data['email'], request.data['avaxpassword'])
 
         json = {
             "jsonrpc": "2.0",
