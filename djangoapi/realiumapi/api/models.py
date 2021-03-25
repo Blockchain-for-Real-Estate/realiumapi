@@ -21,7 +21,7 @@ class User(models.Model):
     kycVerified = models.BooleanField()
     walletAddress = models.CharField(max_length=60)
     email = models.EmailField()
-    avaxusername = models.CharField(max_length=30, null=True) #currently usename and password will not be used
+    avaxusername = models.CharField(max_length=30, null=True) #currently usename and password will not be used, hard coded because of Avalanche
     avaxpassword = models.CharField(max_length=100, null=True)
     def __str__(self):
         return self.fullName
@@ -33,14 +33,14 @@ class Asset(models.Model):
     listingType = models.CharField(max_length=60, null=True)
     propertyType = models.CharField(max_length=60, null=True)
     legalTypeId = models.SmallIntegerField(null=True)
-    tokenId = models.CharField(max_length=60, null=True)
+    avalancheAssetId = models.CharField(max_length=60, null=True)
     tokenNumber = models.CharField(max_length=60, null=True)
     parcelId = models.CharField(max_length=60, null=True)
     streetAddress = models.CharField(max_length=200, null=True)
     city = models.CharField(max_length=60, null=True)
     state = models.CharField(max_length=60, null=True)
     zipCode = models.CharField(max_length=10, null=True)
-    originalPrice = models.DecimalField(max_digits= 1000, decimal_places=2, null=True)
+    purchasedPrice = models.DecimalField(max_digits= 1000, decimal_places=2, null=True)
     listedPrice = models.DecimalField(max_digits= 1000, decimal_places=2,null=True)
     funded = models.IntegerField(null=True)
     forcastedIncome = models.DecimalField(max_digits= 1000, decimal_places=2, null=True)
