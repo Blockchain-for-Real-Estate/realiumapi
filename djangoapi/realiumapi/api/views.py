@@ -2,13 +2,20 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from .serializers import HeroSerializer, UserSerializer, AssetSerializer, TransactionSerializer
 from .models import Hero, User, Asset, Transaction
+from django.contrib.auth.models import User as AuthUser
 
+import requests
 import logging
+import datetime
+import json as JSON
 
 import django.core.exceptions as django_exceptions
 import django.contrib.auth.models as auth_models
 import django.db.models.functions as db_functions
 import django.http as http
+from django.http import QueryDict
+
+import django_filters.rest_framework
 
 import rest_framework.authentication as auth
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -16,6 +23,7 @@ import rest_framework.status as status
 import rest_framework.response as response
 import rest_framework.reverse as reverse
 import rest_framework.views as views
+from rest_framework import generics
 
 import realiumapi.settings as settings
 import api.models as user_models
@@ -26,28 +34,58 @@ APIView = views.APIView
 Response = response.Response
 SessionAuth = auth.SessionAuthentication
 
-class AssetView(APIView):
+AVALANCHENODE = 'http://144.126.214.126:9650/ext/bc/X'
 
+class AssetView(generics.GenericAPIView):
+    # def get(self, request):
+    #     assets = Asset.objects.filter(listed=True)
+    #     serializer_class = user_serializers.AssetSerializer(assets, many=True)
+    #     return Response({"assets": serializer_class})
     serializer_class = user_serializers.AssetSerializer
     asset_model = user_models.Asset
     permission_classes = (IsAuthenticatedOrReadOnly,) 
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+    filterset_fields = ('listed','city','state','assetId','assetName','assetTypeId','listingType','propertyType','legalTypeId','tokenId',
+                        'tokenNumber','parcelId','streetAddress','zipCode','originalPrice','listedPrice','forcastedIncome','minInvestment','maxInvestment','share','yearBuilt'
+                        ,'country','acerage','llc','listed','owner')
 
-    def get(self, request, pk):
-        try:
-            asset_obj = self.asset_model.objects.get(assetId=pk)
+    def get(self, request):
+        
+        try: 
+            asset_obj = self.filter_queryset(self.asset_model.objects.all())
         except self.asset_model.DoesNotExist:
             return Response('Asset object has not been created yet',
                             status=status.HTTP_404_NOT_FOUND)
 
         serializer = self.serializer_class(
             asset_obj,
-            many=False
+            many=True
         )
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"assets":serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request):
         serializer = self.serializer_class(
+            data=request.data
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    #allow asset to be set for sale and listing price and if listed or not
+    def put(self, request, pk):
+
+        try:
+            print(request.data)
+            asset_obj = self.asset_model.objects.filter(assetId=pk).first()
+        except self.asset_model.DoesNotExist:
+            return Response('Transaction not found in database',
+                            status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = self.serializer_class(
+            asset_obj,
             data=request.data
         )
 
@@ -61,22 +99,58 @@ class UserView(APIView):
     serializer_class = user_serializers.UserSerializer
     user_model = user_models.User
     permission_classes = (IsAuthenticatedOrReadOnly,) 
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    filterset_fields = ['fullName','walletAddress']
 
-    def get(self, request, pk):
+    def get(self, request):
         try:
-            user_obj = self.user_model.objects.get(userId=pk)
+            user_obj = self.user_model.objects.all()
         except self.user_model.DoesNotExist:
             return Response('User has not been created yet',
                             status=status.HTTP_404_NOT_FOUND)
 
         serializer = self.serializer_class(
-            user_obj
+            user_obj,
+            many=True
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
+
+        newUser = AuthUser.objects.create_user(request.data['email'], request.data['email'], request.data['avaxpassword'])
+
+        json = {
+            "jsonrpc": "2.0",
+            "method": "avm.createAddress",
+            "params": {
+                "username":"capstone",
+                "password":"D835$938jemv@2" 
+            },
+            "id": 1
+        }
+
+        createWalletAddress = requests.post(AVALANCHENODE, 
+                            json=json)
+
+        walletResponse = JSON.loads(str(createWalletAddress.text))
+        walletAddress = walletResponse['result']['address']
+
+        user_dict = {
+            'user': newUser.id,
+            'fullName' : request.data['fullName'],
+            'investorTypeId' : request.data['investorTypeId'],
+            'kycVerified': request.data['kycVerified'], 
+            'walletAddress' : walletAddress, 
+            'email' : request.data['email'],
+            'avaxusername': request.data['avaxusername'],
+            'avaxpassword':request.data['avaxpassword'],
+        }
+
+        query_dict = QueryDict('', mutable=True)
+        query_dict.update(user_dict)
+
         serializer = self.serializer_class(
-            data=request.data
+            data=query_dict
         )
 
         if serializer.is_valid():
@@ -84,15 +158,19 @@ class UserView(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-class TransactionView(APIView):
+class TransactionView(generics.GenericAPIView):
 
     serializer_class = user_serializers.TransactionSerializer
     transaction_model = user_models.Transaction
+    asset_model = user_models.Asset
+    user_model = user_models.User
     permission_classes = (IsAuthenticatedOrReadOnly,) 
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+    filterset_fields = ('sender', 'receiver', 'txDateTime', 'asset', 'txNFTId', 'txAvaxId','price','txTypeId','txId')
 
-    def get(self, request, pk):
+    def get(self, request):
         try:
-            transaction_arr = self.transaction_model.objects.filter(assetId=pk)
+            transaction_arr = self.filter_queryset(self.transaction_model.objects.all())
         except self.transaction_model.DoesNotExist:
             return Response('Transaction not found in database',
                             status=status.HTTP_404_NOT_FOUND)
@@ -101,11 +179,131 @@ class TransactionView(APIView):
             transaction_arr,
             many=True
         )
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"transactions":serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request):
+        #Check for NFT ownership
+        txNFTId = str('')
+        txAvaxId = str('')
+
+        #TODO: Try and excepts
+            
+        #Avalanche API
+        #transfer NFT to receiver
+        array = []
+        array.append(request.data['sender'])
+        json ={
+                "jsonrpc":"2.0",
+                "id"    : 1,
+                "method" :'avm.sendNFT',
+                "params" :{ 
+                    "assetID" : request.data['assetid'],
+                    "from"    : array,
+                    "to"      : request.data['receiver'],
+                    "groupID" : 0,
+                    "changeAddr": request.data['receiver'], #which xchain?
+                    "username": "capstone",
+                    "password": "D835$938jemv@2"
+                }
+            }
+
+        try: 
+            transferNFTResponse = requests.post(AVALANCHENODE, 
+                                    json=json)
+            
+
+            txResponse = JSON.loads(str(transferNFTResponse.text))
+            txNFTId = txResponse['result']['txID']
+
+        except requests.exceptions.RequestException as err:
+            print ("Oops: Somebody got ya ",err)
+        except requests.exceptions.HTTPError as errh:
+            print ("Http Error:",errh)
+        except requests.exceptions.ConnectionError as errc:
+            print ("Error Connecting:",errc)
+        except requests.exceptions.Timeout as errt:
+            print ("Timeout Error:",errt) 
+            ##EXCEPTION NFT NOT TRANSFERRED
+
+        #Transfer AVAX to sender
+        try:
+            array = []
+            array.append(request.data['receiver'])
+            json =  {
+                        'jsonrpc':'2.0',
+                        'id'     :1,
+                        'method' :'avm.send',
+                        'params' :
+                        { 
+                            "assetID" : 'AVAX',
+                            "amount"  : 2000000000,
+                            "from"    : array,
+                            "to"      : request.data['sender'],
+                            "changeAddr": request.data['sender'],
+                            "memo"    : "AVAX has been transferred for your sale of "+request.data['assetid'],
+                            'username': 'capstone',
+                            'password': 'D835$938jemv@2'
+                        }
+                    }         
+            transferAvaxResponse = requests.post(AVALANCHENODE, 
+                                    json=json)
+
+            txResponse = JSON.loads(str(transferAvaxResponse.text))
+            txAvaxId = txResponse['result']['txID']
+
+        except:
+            #EXCEPTION THROWN FUNDS NOT SENT AND NFT RETURNED
+            array = []
+            array.append(request.data['receiver'])
+            json ={
+                    "jsonrpc":"2.0",
+                    "id"    : 1,
+                    "method" :'avm.sendNFT',
+                    "params" :{ 
+                        "assetID" : request.data['assetid'],
+                        "from"    : array,
+                        "to"      : request.data['sender'],
+                        "groupID" : 0,
+                        "changeAddr": request.data['sender'], #which xchain?
+                        "username": "capstone",
+                        "password": "D835$938jemv@2"
+                    }
+                }
+            try:
+                transferBackNFTResponse = requests.post(AVALANCHENODE, 
+                                json=json)
+            except requests.exceptions.RequestException as err:
+                print ("Oops: Somebody got ya ",err)
+            except requests.exceptions.HTTPError as errh:
+                print ("Http Error:",errh)
+            except requests.exceptions.ConnectionError as errc:
+                print ("Error Connecting:",errc)
+            except requests.exceptions.Timeout as errt:
+                print ("Timeout Error:",errt) 
+
+        transction_dict = {
+            'txTypeId' : request.data['txTypeId'],
+            'asset' : request.data['assetid'],
+            'price': request.data['price'], 
+            'sender' : request.data['sender'], 
+            'receiver' : request.data['receiver'],
+            'txNFTId': txNFTId,
+            'txAvaxId':txAvaxId
+        }
+        query_dict = QueryDict('', mutable=True)
+        query_dict.update(transction_dict)
+
+        #get asset
+        asset_obj = self.asset_model.objects.get(pk=request.data['assetid'])
+        print(asset_obj)
+        #change asset owner
+        user = self.user_model.objects.filter(walletAddress=request.data['receiver'])[0]
+        asset_obj.owner = user
+        #save asset
+        asset_obj.save()
+
         serializer = self.serializer_class(
-            data=request.data
+            data=query_dict
         )
 
         if serializer.is_valid():
