@@ -27,7 +27,7 @@ class User(models.Model):
         return self.fullName
 
 class Asset(models.Model):
-    assetId = models.CharField(primary_key=True,max_length=200)
+    assetId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     assetName = models.CharField(max_length=200, null=True)
     assetTypeId = models.IntegerField(null=True)
     listingType = models.CharField(max_length=60, null=True)
@@ -52,6 +52,7 @@ class Asset(models.Model):
     acerage = models.FloatField(max_length=60, null=True)
     llc = models.CharField(max_length=60, null=True)
     details = models.JSONField(null=True)
+    #Sq ft, bedrooms, bathrooms, 
     listed = models.BooleanField(default=False)
     owner = models.ForeignKey(
         User,
