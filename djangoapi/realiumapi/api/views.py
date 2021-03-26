@@ -45,8 +45,8 @@ class AssetView(generics.GenericAPIView):
     asset_model = user_models.Asset
     permission_classes = (IsAuthenticatedOrReadOnly,) 
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filterset_fields = ('listed','city','state','assetId','assetName','assetTypeId','listingType','propertyType','legalTypeId','tokenId',
-                        'tokenNumber','parcelId','streetAddress','zipCode','originalPrice','listedPrice','forcastedIncome','minInvestment','maxInvestment','share','yearBuilt'
+    filterset_fields = ('city','state','assetId','assetName','assetTypeId','listingType','propertyType','legalTypeId','avalancheAssetId',
+                        'tokenNumber','parcelId','streetAddress','zipCode','purchasedPrice','listedPrice','forcastedIncome','minInvestment','maxInvestment','share','yearBuilt'
                         ,'country','acerage','llc','listed','owner')
 
     def get(self, request):
@@ -78,7 +78,6 @@ class AssetView(generics.GenericAPIView):
     def put(self, request, pk):
 
         try:
-            print(request.data)
             asset_obj = self.asset_model.objects.filter(assetId=pk).first()
         except self.asset_model.DoesNotExist:
             return Response('Transaction not found in database',
@@ -100,7 +99,7 @@ class UserView(APIView):
     user_model = user_models.User
     permission_classes = (IsAuthenticatedOrReadOnly,) 
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
-    filterset_fields = ['fullName','walletAddress']
+    filterset_fields = ['fullName','walletAddress','user','investorTypeId','kycVerified','email']
 
     def get(self, request):
         try:
@@ -185,35 +184,36 @@ class TransactionView(generics.GenericAPIView):
         #Check for NFT ownership
         txNFTId = str('')
         txAvaxId = str('')
-
-        #TODO: Try and excepts
-            
+        asset = self.asset_model.objects.get(pk=request.data['assetId'])
         #Avalanche API
         #transfer NFT to receiver
-        array = []
-        array.append(request.data['sender'])
-        json ={
-                "jsonrpc":"2.0",
-                "id"    : 1,
-                "method" :'avm.sendNFT',
-                "params" :{ 
-                    "assetID" : request.data['assetid'],
-                    "from"    : array,
-                    "to"      : request.data['receiver'],
-                    "groupID" : 0,
-                    "changeAddr": request.data['receiver'], #which xchain?
-                    "username": "capstone",
-                    "password": "D835$938jemv@2"
-                }
-            }
-
         try: 
+            array = [request.data['sender']]
             transferNFTResponse = requests.post(AVALANCHENODE, 
-                                    json=json)
+                                    json={
+                                        "jsonrpc":"2.0",
+                                        "id"    : 1,
+                                        "method" :'avm.sendNFT',
+                                        "params" :{ 
+                                            "assetID" : asset.avalancheAssetId,
+                                            "from"    : array,
+                                            "to"      : request.data['receiver'],
+                                            "groupID" : 0,
+                                            "changeAddr": request.data['receiver'], #which xchain?
+                                            "username": "capstone",
+                                            "password": "D835$938jemv@2"
+                                        }
+                                    })
             
 
             txResponse = JSON.loads(str(transferNFTResponse.text))
-            txNFTId = txResponse['result']['txID']
+
+            if 'error' in txResponse:
+                if 'insufficient funds' in txResponse['error']['message']:
+                    raise Exception("NFT not owned, please select an asset available to sell")
+                raise Exception(txResponse['error']['message'])
+            else:
+                txNFTId = txResponse['result']['txID']
 
         except requests.exceptions.RequestException as err:
             print ("Oops: Somebody got ya ",err)
@@ -223,32 +223,46 @@ class TransactionView(generics.GenericAPIView):
             print ("Error Connecting:",errc)
         except requests.exceptions.Timeout as errt:
             print ("Timeout Error:",errt) 
-            ##EXCEPTION NFT NOT TRANSFERRED
 
         #Transfer AVAX to sender
         try:
-            array = []
-            array.append(request.data['receiver'])
-            json =  {
-                        'jsonrpc':'2.0',
-                        'id'     :1,
-                        'method' :'avm.send',
-                        'params' :
-                        { 
-                            "assetID" : 'AVAX',
-                            "amount"  : 2000000000,
-                            "from"    : array,
-                            "to"      : request.data['sender'],
-                            "changeAddr": request.data['sender'],
-                            "memo"    : "AVAX has been transferred for your sale of "+request.data['assetid'],
-                            'username': 'capstone',
-                            'password': 'D835$938jemv@2'
-                        }
-                    }         
+            checkBalanceJson ={
+                                    "jsonrpc":"2.0",
+                                    "id"     : 1,
+                                    "method" :"avm.getBalance",
+                                    "params" :{
+                                        "address": request.data['receiver'],
+                                        "assetID": "AVAX"
+                                    }
+                                } 
+            
+            checkBalanceResponse = requests.post(AVALANCHENODE, 
+                        json=checkBalanceJson)
+            checkBalanceResult = JSON.loads(str(checkBalanceResponse.text))
+            if int(checkBalanceResult["result"]["balance"]) < int(request.data["price"]): 
+                raise Exception("Insufficient funds")                  
+
+            array = [request.data['receiver']]
             transferAvaxResponse = requests.post(AVALANCHENODE, 
-                                    json=json)
+                                    json={
+                                            'jsonrpc':'2.0',
+                                            'id'     :1,
+                                            'method' :'avm.send',
+                                            'params' :
+                                            { 
+                                                "assetID" : 'AVAX',
+                                                "amount"  : request.data["price"],
+                                                "from"    : array,
+                                                "to"      : request.data['sender'],
+                                                "changeAddr": request.data['sender'],
+                                                "memo"    : "AVAX has been transferred for your sale of "+asset.avalancheAssetId,
+                                                'username': 'capstone',
+                                                'password': 'D835$938jemv@2'
+                                            }
+                                        })
 
             txResponse = JSON.loads(str(transferAvaxResponse.text))
+
             txAvaxId = txResponse['result']['txID']
 
         except:
@@ -260,30 +274,24 @@ class TransactionView(generics.GenericAPIView):
                     "id"    : 1,
                     "method" :'avm.sendNFT',
                     "params" :{ 
-                        "assetID" : request.data['assetid'],
+                        "assetID" : asset.avalancheAssetId,
                         "from"    : array,
                         "to"      : request.data['sender'],
                         "groupID" : 0,
-                        "changeAddr": request.data['sender'], #which xchain?
+                        "changeAddr": request.data['sender'],
                         "username": "capstone",
                         "password": "D835$938jemv@2"
                     }
                 }
-            try:
-                transferBackNFTResponse = requests.post(AVALANCHENODE, 
-                                json=json)
-            except requests.exceptions.RequestException as err:
-                print ("Oops: Somebody got ya ",err)
-            except requests.exceptions.HTTPError as errh:
-                print ("Http Error:",errh)
-            except requests.exceptions.ConnectionError as errc:
-                print ("Error Connecting:",errc)
-            except requests.exceptions.Timeout as errt:
-                print ("Timeout Error:",errt) 
+            transferBackNFTResponse = requests.post(AVALANCHENODE, 
+                            json=json)
+            txResponse = JSON.loads(str(transferBackNFTResponse.text))
+            raise Exception("Insufficient funds")
+            exit
 
         transction_dict = {
             'txTypeId' : request.data['txTypeId'],
-            'asset' : request.data['assetid'],
+            'asset' : request.data['assetId'],
             'price': request.data['price'], 
             'sender' : request.data['sender'], 
             'receiver' : request.data['receiver'],
@@ -294,11 +302,11 @@ class TransactionView(generics.GenericAPIView):
         query_dict.update(transction_dict)
 
         #get asset
-        asset_obj = self.asset_model.objects.get(pk=request.data['assetid'])
-        print(asset_obj)
+        asset_obj = self.asset_model.objects.get(pk=request.data['assetId'])
         #change asset owner
         user = self.user_model.objects.filter(walletAddress=request.data['receiver'])[0]
         asset_obj.owner = user
+        asset_obj.purchasedPrice = request.data["price"]
         #save asset
         asset_obj.save()
 
