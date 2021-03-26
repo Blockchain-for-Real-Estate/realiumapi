@@ -27,7 +27,7 @@ SECRET_KEY = '8&@@#g3$0x7v#7v*8342#uahm+hrfn+#ry@07@#!(9f@ajrbrk'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '3.135.215.176']
+ALLOWED_HOSTS = ['3.135.215.176']
 
 
 # Application definition
@@ -88,29 +88,17 @@ WSGI_APPLICATION = 'realiumapi.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-# Uncomment to run local
+#comment out when running locally
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'realiumdb',
-        'USER': 'realium',
-        'PASSWORD': 'capstone21',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.environ.get('DATEBASE_NAME'),
+        'USER': os.environ.get('DATABASE_USER'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
+        'HOST': os.environ.get('DATABASE_HOST'),
+        'PORT': os.environ.get('DATABASE_PORT'),
     }
 }
-
-#comment out when running locally
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': os.environ.get('DATEBASE_NAME'),
-#         'USER': os.environ.get('DATABASE_USER'),
-#         'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
-#         'HOST': os.environ.get('DATABASE_HOST'),
-#         'PORT': os.environ.get('DATABASE_PORT'),
-#     }
-# }
 
 
 # Password validation
