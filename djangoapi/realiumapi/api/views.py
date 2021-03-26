@@ -45,7 +45,7 @@ class AssetView(generics.GenericAPIView):
     asset_model = user_models.Asset
     permission_classes = (IsAuthenticatedOrReadOnly,) 
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filterset_fields = ('listed','city','state','assetId','assetName','assetTypeId','listingType','propertyType','legalTypeId','avalancheAssetId',
+    filterset_fields = ('city','state','assetId','assetName','assetTypeId','listingType','propertyType','legalTypeId','avalancheAssetId',
                         'tokenNumber','parcelId','streetAddress','zipCode','purchasedPrice','listedPrice','forcastedIncome','minInvestment','maxInvestment','share','yearBuilt'
                         ,'country','acerage','llc','listed','owner')
 
@@ -184,7 +184,7 @@ class TransactionView(generics.GenericAPIView):
         #Check for NFT ownership
         txNFTId = str('')
         txAvaxId = str('')
-        asset = self.asset_model.objects.get(pk=request.data['assetid'])
+        asset = self.asset_model.objects.get(pk=request.data['assetId'])
         #Avalanche API
         #transfer NFT to receiver
         try: 
@@ -291,7 +291,7 @@ class TransactionView(generics.GenericAPIView):
 
         transction_dict = {
             'txTypeId' : request.data['txTypeId'],
-            'asset' : request.data['assetid'],
+            'asset' : request.data['assetId'],
             'price': request.data['price'], 
             'sender' : request.data['sender'], 
             'receiver' : request.data['receiver'],
@@ -302,7 +302,7 @@ class TransactionView(generics.GenericAPIView):
         query_dict.update(transction_dict)
 
         #get asset
-        asset_obj = self.asset_model.objects.get(pk=request.data['assetid'])
+        asset_obj = self.asset_model.objects.get(pk=request.data['assetId'])
         #change asset owner
         user = self.user_model.objects.filter(walletAddress=request.data['receiver'])[0]
         asset_obj.owner = user
