@@ -65,12 +65,9 @@ class AssetView(generics.GenericAPIView):
         return Response({"assets":serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request):
-        print(request.data)
         serializer = self.serializer_class(
             data=request.data
         )
-
-        print(serializer)
 
         if serializer.is_valid():
             serializer.save()
@@ -81,7 +78,6 @@ class AssetView(generics.GenericAPIView):
     def put(self, request, pk):
 
         try:
-            print(request.data)
             asset_obj = self.asset_model.objects.filter(assetId=pk).first()
         except self.asset_model.DoesNotExist:
             return Response('Transaction not found in database',
@@ -271,7 +267,6 @@ class TransactionView(generics.GenericAPIView):
 
         except:
             #EXCEPTION THROWN FUNDS NOT SENT AND NFT RETURNED
-            print("Exception made and NFT being returned")
             array = []
             array.append(request.data['receiver'])
             json ={
@@ -290,9 +285,7 @@ class TransactionView(generics.GenericAPIView):
                 }
             transferBackNFTResponse = requests.post(AVALANCHENODE, 
                             json=json)
-            print(transferBackNFTResponse)
             txResponse = JSON.loads(str(transferBackNFTResponse.text))
-            print(txResponse)
             raise Exception("Insufficient funds")
             exit
 
@@ -307,7 +300,6 @@ class TransactionView(generics.GenericAPIView):
         }
         query_dict = QueryDict('', mutable=True)
         query_dict.update(transction_dict)
-        print(query_dict)
 
         #get asset
         asset_obj = self.asset_model.objects.get(pk=request.data['assetid'])
