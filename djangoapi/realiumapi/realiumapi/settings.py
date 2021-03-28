@@ -24,11 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
-    '3.135.215.176',
-    'https://api.realium.io'
+    '18.189.136.175',
+    'api.realium.io',
+    'https://api.realium.io',
 ]
 
 # Application definition
