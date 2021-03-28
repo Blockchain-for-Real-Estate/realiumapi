@@ -27,7 +27,10 @@ SECRET_KEY = '8&@@#g3$0x7v#7v*8342#uahm+hrfn+#ry@07@#!(9f@ajrbrk'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['3.135.215.176']
+ALLOWED_HOSTS = [
+    '3.135.215.176',
+    'https://api.realium.io'
+]
 
 
 # Application definition
@@ -44,11 +47,13 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_auth',
     'django_filters',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -57,6 +62,14 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'realiumapi.urls'
+
+CORS_ALLOWED_ORIGINS = [
+    "https://www.realium.io",
+    "https://app.realium.io",
+    "https://realium.io",
+    "http://localhost:3000"
+]
+
 
 TEMPLATES = [
     {
