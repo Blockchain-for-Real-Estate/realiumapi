@@ -21,6 +21,7 @@ urlpatterns = [
     path('assets/<str:pk>', views.AssetView.as_view(), name="put"),
     # path('users/<str:pk>', views.UserView.as_view(), name="user-detail"),
     path('users/', views.UserView.as_view()),
+    path('register/', views.RegisterView.as_view()),
     # path('transactions/<str:pk>', views.TransactionView.as_view(), name="transaction-detail")
     path('transactions/', views.TransactionView.as_view())
 ]
