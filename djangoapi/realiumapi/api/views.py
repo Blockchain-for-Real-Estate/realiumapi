@@ -97,7 +97,7 @@ class UserView(APIView):
 
     serializer_class = user_serializers.UserSerializer
     user_model = user_models.User
-    permission_classes = (IsAuthenticatedOrReadOnly,) 
+    # permission_classes = (IsAuthenticatedOrReadOnly,) 
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = ['fullName','walletAddress','user','investorTypeId','kycVerified','email']
 
