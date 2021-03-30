@@ -118,6 +118,7 @@ class RegisterView(APIView):
     
     serializer_class = user_serializers.UserSerializer
     user_model = user_models.User
+    permission_classes = (AllowAny,)
 
     def post(self, request):
 
