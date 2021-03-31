@@ -87,7 +87,7 @@
     },
     {
         "model": "api.asset",
-        "pk": 2,
+        "pk": 3,
         "fields": {
             "assetName": "Mountainland Meadow",
             "assetTypeId": 1,
