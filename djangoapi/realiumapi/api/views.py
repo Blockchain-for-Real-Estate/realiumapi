@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets
-from .serializers import HeroSerializer, UserSerializer, AssetSerializer, TransactionSerializer
-from .models import Hero, User, Asset, Transaction
+from .serializers import UserSerializer, TokenSerializer, TransactionSerializer, PropertySerializer
+from .models import User, Token, Transaction, Property
 from django.contrib.auth.models import User as AuthUser
 
 import requests
@@ -36,33 +36,29 @@ SessionAuth = auth.SessionAuthentication
 
 AVALANCHENODE = 'http://128.199.5.6:9650/ext/bc/X'
 
-class AssetView(generics.GenericAPIView):
-    # def get(self, request):
-    #     assets = Asset.objects.filter(listed=True)
-    #     serializer_class = user_serializers.AssetSerializer(assets, many=True)
-    #     return Response({"assets": serializer_class})
-    serializer_class = user_serializers.AssetSerializer
-    asset_model = user_models.Asset
+class TokenView(generics.GenericAPIView):
+    serializer_class = user_serializers.TokenSerializer
+    token_model = user_models.Token
     permission_classes = (IsAuthenticatedOrReadOnly,) 
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filterset_fields = ('city','state','assetId','assetName','assetTypeId','listingType','propertyType','legalTypeId','avalancheAssetId',
-                        'tokenNumber','parcelId','streetAddress','zipCode','purchasedPrice','listedPrice','forcastedIncome','minInvestment','maxInvestment','share','yearBuilt'
-                        ,'country','acerage','llc','listed','owner')
+    filterset_fields = ('listed', 'listedPrice', 'owner', 'owner_id', 'property', 'property_id', 'purchasedPrice', 'tokenId', 'transaction')
+    def get_queryset(self):
+        return
 
     def get(self, request):
         
         try: 
-            asset_obj = self.filter_queryset(self.asset_model.objects.all())
-        except self.asset_model.DoesNotExist:
-            return Response('Asset object has not been created yet',
+            token_obj = self.filter_queryset(self.token_model.objects.all())
+        except self.token_model.DoesNotExist:
+            return Response('Token object has not been created yet',
                             status=status.HTTP_404_NOT_FOUND)
 
         serializer = self.serializer_class(
-            asset_obj,
+            token_obj,
             many=True
         )
 
-        return Response({"assets":serializer.data}, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         serializer = self.serializer_class(
@@ -74,17 +70,72 @@ class AssetView(generics.GenericAPIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    #allow asset to be set for sale and listing price and if listed or not
+    #allow Token to be set for sale and listing price and if listed or not
     def put(self, request, pk):
 
         try:
-            asset_obj = self.asset_model.objects.filter(assetId=pk).first()
-        except self.asset_model.DoesNotExist:
-            return Response('Transaction not found in database',
+            token_obj = self.token_model.objects.filter(tokenId=pk).first()
+        except self.token_model.DoesNotExist:
+            return Response('Token not found in database',
                             status=status.HTTP_404_NOT_FOUND)
         
         serializer = self.serializer_class(
-            asset_obj,
+            token_obj,
+            data=request.data
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class PropertyView(generics.GenericAPIView):
+    serializer_class = user_serializers.PropertySerializer
+    token_model = user_models.Property
+    permission_classes = (IsAuthenticatedOrReadOnly,) 
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+    filterset_fields = ('city','state','propertyId','propertyName','propertyTypeId','listingType','propertyType','legalTypeId','avalancheAssetId',
+                        'parcelId','streetAddress','zipCode','forcastedIncome','minInvestment','maxInvestment','yearBuilt'
+                        ,'country','acerage','llc')
+    def get_queryset(self):
+        return
+
+    def get(self, request):
+        
+        try: 
+            token_obj = self.filter_queryset(self.token_model.objects.all())
+        except self.token_model.DoesNotExist:
+            return Response('Property object has not been created yet',
+                            status=status.HTTP_404_NOT_FOUND)
+
+        serializer = self.serializer_class(
+            token_obj,
+            many=True
+        )
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = self.serializer_class(
+            data=request.data
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    #allow Token to be set for sale and listing price and if listed or not
+    def put(self, request, pk):
+
+        try:
+            token_obj = self.token_model.objects.filter(tokenId=pk).first()
+        except self.token_model.DoesNotExist:
+            return Response('Property not found in database',
+                            status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = self.serializer_class(
+            token_obj,
             data=request.data
         )
 
@@ -166,11 +217,11 @@ class TransactionView(generics.GenericAPIView):
 
     serializer_class = user_serializers.TransactionSerializer
     transaction_model = user_models.Transaction
-    asset_model = user_models.Asset
+    token_model = user_models.Token
     user_model = user_models.User
     permission_classes = (IsAuthenticatedOrReadOnly,) 
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filterset_fields = ('sender', 'receiver', 'txDateTime', 'asset', 'txNFTId', 'txAvaxId','price','txTypeId','txId')
+    filterset_fields = ('sender', 'receiver', 'txDateTime', 'Token', 'txNFTId', 'txAvaxId','price','txTypeId','txId')
 
     def get(self, request):
         try:
@@ -189,7 +240,7 @@ class TransactionView(generics.GenericAPIView):
         #Check for NFT ownership
         txNFTId = str('')
         txAvaxId = str('')
-        asset = self.asset_model.objects.get(pk=request.data['assetId'])
+        Token = self.token_model.objects.get(pk=request.data['tokenId'])
         #Avalanche API
         #transfer NFT to receiver
         try: 
@@ -200,7 +251,7 @@ class TransactionView(generics.GenericAPIView):
                                         "id"    : 1,
                                         "method" :'avm.sendNFT',
                                         "params" :{ 
-                                            "assetID" : asset.avalancheAssetId,
+                                            "tokenID" : Token.avalancheAssetId,
                                             "from"    : array,
                                             "to"      : request.data['receiver'],
                                             "groupID" : 0,
@@ -215,7 +266,7 @@ class TransactionView(generics.GenericAPIView):
 
             if 'error' in txResponse:
                 if 'insufficient funds' in txResponse['error']['message']:
-                    raise Exception("NFT not owned, please select an asset available to sell")
+                    raise Exception("NFT not owned, please select an Token available to sell")
                 raise Exception(txResponse['error']['message'])
             else:
                 txNFTId = txResponse['result']['txID']
@@ -237,7 +288,7 @@ class TransactionView(generics.GenericAPIView):
                                     "method" :"avm.getBalance",
                                     "params" :{
                                         "address": request.data['receiver'],
-                                        "assetID": "AVAX"
+                                        "tokenID": "AVAX"
                                     }
                                 } 
             
@@ -255,12 +306,12 @@ class TransactionView(generics.GenericAPIView):
                                             'method' :'avm.send',
                                             'params' :
                                             { 
-                                                "assetID" : 'AVAX',
+                                                "tokenID" : 'AVAX',
                                                 "amount"  : request.data["price"],
                                                 "from"    : array,
                                                 "to"      : request.data['sender'],
                                                 "changeAddr": request.data['sender'],
-                                                "memo"    : "AVAX has been transferred for your sale of "+asset.avalancheAssetId,
+                                                "memo"    : "AVAX has been transferred for your sale of "+Token.avalancheAssetId,
                                                 'username': 'capstone',
                                                 'password': 'D835$938jemv@2'
                                             }
@@ -279,7 +330,7 @@ class TransactionView(generics.GenericAPIView):
                     "id"    : 1,
                     "method" :'avm.sendNFT',
                     "params" :{ 
-                        "assetID" : asset.avalancheAssetId,
+                        "tokenID" : Token.avalancheAssetId,
                         "from"    : array,
                         "to"      : request.data['sender'],
                         "groupID" : 0,
@@ -296,7 +347,7 @@ class TransactionView(generics.GenericAPIView):
 
         transction_dict = {
             'txTypeId' : request.data['txTypeId'],
-            'asset' : request.data['assetId'],
+            'Token' : request.data['tokenId'],
             'price': request.data['price'], 
             'sender' : request.data['sender'], 
             'receiver' : request.data['receiver'],
@@ -306,14 +357,14 @@ class TransactionView(generics.GenericAPIView):
         query_dict = QueryDict('', mutable=True)
         query_dict.update(transction_dict)
 
-        #get asset
-        asset_obj = self.asset_model.objects.get(pk=request.data['assetId'])
-        #change asset owner
+        #get Token
+        token_obj = self.token_model.objects.get(pk=request.data['tokenId'])
+        #change Token owner
         user = self.user_model.objects.filter(walletAddress=request.data['receiver'])[0]
-        asset_obj.owner = user
-        asset_obj.purchasedPrice = request.data["price"]
-        #save asset
-        asset_obj.save()
+        token_obj.owner = user
+        token_obj.purchasedPrice = request.data["price"]
+        #save Token
+        token_obj.save()
 
         serializer = self.serializer_class(
             data=query_dict
@@ -324,18 +375,18 @@ class TransactionView(generics.GenericAPIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-class HeroViewSet(viewsets.ModelViewSet):
-    queryset = Hero.objects.all().order_by('name')
-    serializer_class = HeroSerializer
-
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('fullName')
     serializer_class = UserSerializer
 
-class AssetViewSet(viewsets.ModelViewSet):
-    queryset = Asset.objects.all().order_by('assetName')
-    serializer_class = AssetSerializer
+class TokenViewSet(viewsets.ModelViewSet):
+    queryset = Token.objects.all().order_by('listed')
+    serializer_class = TokenSerializer
 
 class TransactionViewSet(viewsets.ModelViewSet):
     queryset = Transaction.objects.all().order_by('txDateTime')
     serializer_class = TransactionSerializer
+
+class PropertyViewSet(viewsets.ModelViewSet):
+    queryset = Property.objects.all()
+    serializer_class = PropertySerializer
