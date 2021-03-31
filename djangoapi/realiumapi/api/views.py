@@ -34,7 +34,7 @@ APIView = views.APIView
 Response = response.Response
 SessionAuth = auth.SessionAuthentication
 
-AVALANCHENODE = 'http://144.126.214.126:9650/ext/bc/X'
+AVALANCHENODE = 'http://128.199.5.6:9650/ext/bc/X'
 
 class AssetView(generics.GenericAPIView):
     # def get(self, request):
