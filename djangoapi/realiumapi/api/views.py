@@ -114,6 +114,11 @@ class UserView(APIView):
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class RegisterView(APIView):
+    
+    serializer_class = user_serializers.UserSerializer
+    user_model = user_models.User
+
     def post(self, request):
 
         newUser = AuthUser.objects.create_user(request.data['email'], request.data['email'], request.data['avaxpassword'])

@@ -21,14 +21,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '8&@@#g3$0x7v#7v*8342#uahm+hrfn+#ry@07@#!(9f@ajrbrk' 
-#SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '3.135.215.176']
-
+ALLOWED_HOSTS = [
+    '18.189.136.175',
+    'api.realium.io',
+    'https://api.realium.io',
+]
 
 # Application definition
 
@@ -44,11 +46,13 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_auth',
     'django_filters',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -57,6 +61,14 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'realiumapi.urls'
+
+CORS_ALLOWED_ORIGINS = [
+    "https://www.realium.io",
+    "https://app.realium.io",
+    "https://realium.io",
+    "http://localhost:3000",
+]
+
 
 TEMPLATES = [
     {
@@ -88,29 +100,17 @@ WSGI_APPLICATION = 'realiumapi.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-# Uncomment to run local
+#comment out when running locally
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'realiumdb',
-        'USER': 'realium',
-        'PASSWORD': 'capstone21',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.environ.get('DATEBASE_NAME'),
+        'USER': os.environ.get('DATABASE_USER'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
+        'HOST': os.environ.get('DATABASE_HOST'),
+        'PORT': os.environ.get('DATABASE_PORT'),
     }
 }
-
-#comment out when running locally
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': os.environ.get('DATEBASE_NAME'),
-#         'USER': os.environ.get('DATABASE_USER'),
-#         'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
-#         'HOST': os.environ.get('DATABASE_HOST'),
-#         'PORT': os.environ.get('DATABASE_PORT'),
-#     }
-# }
 
 
 # Password validation
