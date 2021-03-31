@@ -10,7 +10,7 @@ class Hero(models.Model):
         return self.name
 
 class User(models.Model):
-    realiumUserId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    realiumUserId = models.AutoField(primary_key=True)
     user = models.OneToOneField(
         auth_models.User,
         on_delete=models.CASCADE,
@@ -27,7 +27,7 @@ class User(models.Model):
         return self.fullName
 
 class Asset(models.Model):
-    assetId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    assetId = models.AutoField(primary_key=True)
     assetName = models.CharField(max_length=200, null=True)
     assetTypeId = models.IntegerField(null=True)
     listingType = models.CharField(max_length=60, null=True)
@@ -66,7 +66,7 @@ class Asset(models.Model):
 class Transaction(models.Model):
     class Meta:
         ordering = ['-txDateTime']
-    txId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    txId = models.AutoField(primary_key=True)
     txTypeId = models.IntegerField(null=True)
     asset = models.ForeignKey(
         Asset,
