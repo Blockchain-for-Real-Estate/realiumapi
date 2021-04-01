@@ -154,9 +154,12 @@ class UserView(APIView):
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = ['fullName','walletAddress','user','investorTypeId','kycVerified','email']
 
+    def get_queryset(self):
+        return
+
     def get(self, request):
         try:
-            user_obj = self.user_model.objects.all()
+            user_obj = self.filter_queryset(self.user_model.objects.all())
         except self.user_model.DoesNotExist:
             return Response('User has not been created yet',
                             status=status.HTTP_404_NOT_FOUND)
