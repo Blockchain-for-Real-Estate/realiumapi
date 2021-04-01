@@ -8,8 +8,6 @@
             "listingType": "Residential",
             "propertyType": "Single Family Home",
             "legalTypeId": 1,
-            "avalancheAssetId": "2i89c5xMS1zcduR1pxjm5xPDnhAb4R5AigwWuQewGkNMBC5PTu",
-            "tokenNumber": 1,
             "parcelId": "9023 S Drexel Avenue",
             "streetAddress": "9023 S Drexel Avenue",
             "city": "Hyde Park",
@@ -40,7 +38,7 @@
     },
     {
         "model": "api.property",
-        "pk": 1,
+        "pk": 2,
         "fields": {
             "propertyName": "Rock Harbor",
             "propertyTypeId": 1,
@@ -48,7 +46,6 @@
             "propertyType": "Single Family Home",
             "legalTypeId": 1,
             "avalancheAssetId": "2i89c5xMS1zcduR1pxjm5xPDnhAb4R5AigwWuQewGkNMBC5PTu",
-            "tokenNumber": 1,
             "parcelId": "400 S Woodbridge Way",
             "streetAddress": "400 S Woodbridge Way",
             "city": "Eagle Mountain",
@@ -79,7 +76,7 @@
     },
     {
         "model": "api.property",
-        "pk": 1,
+        "pk": 3,
         "fields": {
             "propertyName": "Mountainland Meadow",
             "propertyTypeId": 1,
@@ -87,7 +84,6 @@
             "propertyType": "Single Family Home",
             "legalTypeId": 1,
             "avalancheAssetId": "2i89c5xMS1zcduR1pxjm5xPDnhAb4R5AigwWuQewGkNMBC5PTu",
-            "tokenNumber": 1,
             "parcelId": "339 N Trimac Street",
             "streetAddress": "339 N Trimac Street",
             "city": "Salt Lake City",
