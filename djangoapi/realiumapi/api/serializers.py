@@ -8,6 +8,12 @@ class UserSerializer(serializers.ModelSerializer):
         fields = "__all__"
         depth = 1
 
+class PropertySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Property
+        fields = "__all__"
+        
 class TokenSerializer(serializers.ModelSerializer):
     property = serializers.PrimaryKeyRelatedField(read_only=True)
 
@@ -15,16 +21,9 @@ class TokenSerializer(serializers.ModelSerializer):
         model = Token
         fields = "__all__"
         depth = 1
-
+        
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = "__all__"
-        depth = 1
-
-class PropertySerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Property
         fields = "__all__"
         depth = 1
