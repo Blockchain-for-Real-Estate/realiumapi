@@ -8,6 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class TokenSerializer(serializers.ModelSerializer):
+    property = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Token
