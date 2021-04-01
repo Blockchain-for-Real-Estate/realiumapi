@@ -29,6 +29,8 @@ class User(models.Model):
         return self.fullName
 
 class Property(models.Model):
+    class Meta:
+        ordering = ['propertyId']
     propertyId = models.AutoField(primary_key=True)
     propertyName = models.CharField(max_length=200, null=True)
     propertyTypeId = models.IntegerField(null=True, default=1)
