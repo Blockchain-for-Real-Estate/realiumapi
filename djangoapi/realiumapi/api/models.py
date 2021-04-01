@@ -2,6 +2,14 @@ from django.db import models
 import django.contrib.auth.models as auth_models
 import uuid
 
+EVENT_TYPES = (
+    ('OFFER', 'OFFER'),
+    ('LIST','LIST'),
+    ('SALE','SALE'),
+    ('UNLIST','UNLIST')
+    # ('CREATED','CREATED')
+)
+
 # Create your models here.
 class User(models.Model):
     realiumUserId = models.AutoField(primary_key=True)
@@ -23,11 +31,11 @@ class User(models.Model):
 class Property(models.Model):
     propertyId = models.AutoField(primary_key=True)
     propertyName = models.CharField(max_length=200, null=True)
-    propertyTypeId = models.IntegerField(null=True)
-    listingType = models.CharField(max_length=60, null=True)
-    propertyType = models.CharField(max_length=60, null=True)
-    legalTypeId = models.SmallIntegerField(null=True)
-    avalancheAssetId = models.CharField(max_length=60, null=True)
+    propertyTypeId = models.IntegerField(null=True, default=1)
+    listingType = models.CharField(max_length=60, null=True, default="None")
+    propertyType = models.CharField(max_length=60, null=True, default="None")
+    legalTypeId = models.SmallIntegerField(null=True, default=1)
+    avalancheAssetId = models.CharField(max_length=60, null=True) #this field will be the same for all of the tokens but I feel like we will need this for tokens, especially during transactions
     parcelId = models.CharField(max_length=60, null=True)
     streetAddress = models.CharField(max_length=200, null=True)
     city = models.CharField(max_length=60, null=True)
@@ -41,6 +49,7 @@ class Property(models.Model):
     country = models.CharField(max_length=60, null=True)
     acerage = models.FloatField(max_length=60, null=True)
     llc = models.CharField(max_length=60, null=True)
+    seriesCount = models.IntegerField()
     details = models.JSONField(null=True)
 
 class Token(models.Model):
@@ -56,21 +65,22 @@ class Token(models.Model):
         on_delete=models.SET_NULL
     )
         
-class Transaction(models.Model):
+class Event(models.Model):
     class Meta:
-        ordering = ['-txDateTime']
-    txId = models.AutoField(primary_key=True)
-    txTypeId = models.IntegerField(null=True)
-    token = models.ForeignKey(
-        Token,
-        verbose_name="Token",
-        null=True,
-        on_delete=models.SET_NULL
-    )
-    # property = models.ForeignKey(Property, related_name="tokens", null=True, on_delete=models.SET_NULL) #**************should this be included???????????????
-    price = models.FloatField() #this is the amount of AVAX being sent to seller
-    sender = models.CharField(max_length=200) #sender of the NFT
-    receiver = models.CharField(max_length=200) #receiver of NFT
-    txNFTId = models.CharField(max_length=200) #the transaction of sending the NFT
-    txAvaxId = models.CharField(max_length=200) #the transaction of sending the AVAX
-    txDateTime = models.DateTimeField(auto_now_add=True)
+        ordering = ['-eventDateTime']
+    eventId = models.AutoField(primary_key=True)
+    eventType = models.CharField(
+                                max_length=10,
+                                choices=EVENT_TYPES)
+    token = models.ForeignKey(Token,verbose_name="token",null=True,on_delete=models.SET_NULL)
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='property')
+    listedPrice = models.FloatField(null=True) #this is the amount of AVAX being sent to seller
+    purchasedPrice = models.FloatField(null=True)
+    tokenOwner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tokenOwner') #sender of the NFT
+    eventCreator = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,related_name='eventCreator') #receiver of NFT
+    quantity = models.IntegerField(null=True)
+    txNFTId = models.CharField(max_length=200, null=True) #the transaction of sending the NFT
+    txAvaxId = models.CharField(max_length=200, null=True) #the transaction of sending the AVAX
+    eventDateTime = models.DateTimeField(auto_now_add=True)
+
+

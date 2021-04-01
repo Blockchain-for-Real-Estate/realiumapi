@@ -6,7 +6,7 @@ from . import views
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'tokens', views.TokenViewSet)
-router.register(r'transactions', views.TransactionViewSet)
+router.register(r'events', views.EventViewSet)
 router.register(r'properties', views.PropertyViewSet)
 
 # Wire up our API using automatic URL routing.
@@ -24,5 +24,5 @@ urlpatterns = [
     path('properties/', views.PropertyView.as_view()),
     path('register/', views.RegisterView.as_view()),
     # path('transactions/<str:pk>', views.TransactionView.as_view(), name="transaction-detail")
-    path('transactions/', views.TransactionView.as_view())
+    path('events/', views.EventView.as_view())
 ]
