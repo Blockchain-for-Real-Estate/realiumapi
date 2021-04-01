@@ -146,7 +146,7 @@ class PropertyView(generics.GenericAPIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-class UserView(APIView):
+class UserView(generics.GenericAPIView):
 
     serializer_class = user_serializers.UserSerializer
     user_model = user_models.User
