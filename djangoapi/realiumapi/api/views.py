@@ -226,7 +226,7 @@ class EventView(generics.GenericAPIView):
     user_model = user_models.User
     # permission_classes = (IsAuthenticatedOrReadOnly,) 
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filterset_fields = ('tokenOwner', 'eventCreator', 'eventDateTime', 'token', 'txNFTId', 'txAvaxId','eventType','eventId')
+    filterset_fields = ('tokenOwner', 'eventCreator', 'eventDateTime', 'token', 'txNFTId', 'txAvaxId','eventType','eventId','property')
     def get_queryset(self):
         return
 
