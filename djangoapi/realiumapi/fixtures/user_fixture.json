@@ -8,7 +8,8 @@
             "last_name": "Anderson",
             "email": "greg.anderson@email.com",
             "is_active": true,
-            "password": "pbkdf2_sha256$216000$oB4vEhcLgt8o$IO+AIURjb0YiJpCcubQ4wGUa49FmvRROrH/Sq2Tisrw="
+            "password": "realiumpassword",
+            "walletAddres":"X-fuji12kuhq2rk5f0qwszzrc60jvx4elfntenxa6nj4t"
         }
     },
     {
@@ -20,7 +21,8 @@
             "last_name": "Allen",
             "email": "gove.allen@email.com",
             "is_active": true,
-            "password": "pbkdf2_sha256$216000$oB4vEhcLgt8o$IO+AIURjb0YiJpCcubQ4wGUa49FmvRROrH/Sq2Tisrw="
+            "password": "realiumpassword",
+            "walletAddres":"X-fuji1cl9s26jjk5xugvz98zfetan4j9sd66yuwjr0h8"
         }
     },
     {
@@ -32,7 +34,8 @@
             "last_name": "Kettles",
             "email": "degan.kettles@email.com",
             "is_active": true,
-            "password": "pbkdf2_sha256$216000$oB4vEhcLgt8o$IO+AIURjb0YiJpCcubQ4wGUa49FmvRROrH/Sq2Tisrw="
+            "password": "realiumpassword",
+            "walletAddres":"X-fuji1rxar4xfrpfxywh9f5vs4q6jjjg8vntf8f8jvxg"
         }
     },
     {
@@ -44,7 +47,8 @@
             "last_name": "Jenkins",
             "email": "jeff.jenkins@email.com",
             "is_active": true,
-            "password": "pbkdf2_sha256$216000$oB4vEhcLgt8o$IO+AIURjb0YiJpCcubQ4wGUa49FmvRROrH/Sq2Tisrw="
+            "password": "realiumpassword",
+            "walletAddres":"X-fuji19u3cussalkkn33qz4cn2y345dw6g0hnn3zqcm3"
         }
     },
     {
@@ -56,7 +60,8 @@
             "last_name": "Keith",
             "email": "mark.keith@email.com",
             "is_active": true,
-            "password": "pbkdf2_sha256$216000$oB4vEhcLgt8o$IO+AIURjb0YiJpCcubQ4wGUa49FmvRROrH/Sq2Tisrw="
+            "password": "realiumpassword",
+            "walletAddres":"X-fuji1n2egmksqmkr8t54qsxy55h7dcekkj7skwzgvgh"
         }
     },
     {
@@ -68,7 +73,8 @@
             "last_name": "Liddle",
             "email": "steve.liddle@email.com",
             "is_active": true,
-            "password": "pbkdf2_sha256$216000$oB4vEhcLgt8o$IO+AIURjb0YiJpCcubQ4wGUa49FmvRROrH/Sq2Tisrw="
+            "password": "realiumpassword",
+            "walletAddres":"X-fuji1p6qxj9jvp6egfstezly3javuldt9c30wfm57s2"
         }
     },
     {
@@ -143,8 +149,8 @@
             "fullName": "Greg Anderson",
             "investorTypeId": 1,
             "kycVerified": true,
-            "email": "ger.allen@email.com",
-            "avaxusername": "gove.allen@email.com",
+            "email": "greg.anderson@email.com",
+            "avaxusername": "greg.anderson@email.com",
             "avaxpassword": "realiumpassword",
             "user":7
         }

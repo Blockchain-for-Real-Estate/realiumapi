@@ -16,6 +16,7 @@ import django.http as http
 from django.http import QueryDict
 
 import django_filters.rest_framework
+from rest_framework import filters
 
 import rest_framework.authentication as auth
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -40,8 +41,9 @@ class TokenView(generics.GenericAPIView):
     serializer_class = user_serializers.TokenSerializer
     token_model = user_models.Token
     permission_classes = (IsAuthenticatedOrReadOnly,) 
-    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,filters.SearchFilter)
     filterset_fields = ('listed', 'listedPrice', 'owner', 'owner_id', 'property', 'property_id', 'purchasedPrice', 'tokenId')
+    search_fields = ['listed', 'listedPrice', 'purchasedPrice', 'property__propertyName','property__avalancheAssetId','tokenId','owner__fullName','owner__email''owner__realiumUserId']
     def get_queryset(self):
         return
 
@@ -93,10 +95,13 @@ class PropertyView(generics.GenericAPIView):
     serializer_class = user_serializers.PropertySerializer
     token_model = user_models.Property
     permission_classes = (IsAuthenticatedOrReadOnly,) 
-    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,filters.SearchFilter)
     filterset_fields = ('city','state','propertyId','propertyName','propertyTypeId','listingType','propertyType','legalTypeId','avalancheAssetId',
                         'parcelId','streetAddress','zipCode','forcastedIncome','minInvestment','maxInvestment','yearBuilt'
                         ,'country','acerage','llc')
+    search_fields = ['city','state','propertyId','propertyName','propertyTypeId','listingType','propertyType','legalTypeId','avalancheAssetId',
+                        'parcelId','streetAddress','zipCode','forcastedIncome','minInvestment','maxInvestment','yearBuilt'
+                        ,'country','acerage','llc']
     def get_queryset(self):
         return
 
@@ -144,17 +149,20 @@ class PropertyView(generics.GenericAPIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-class UserView(APIView):
+class UserView(generics.GenericAPIView):
 
     serializer_class = user_serializers.UserSerializer
     user_model = user_models.User
     permission_classes = (IsAuthenticatedOrReadOnly,) 
-    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend,filters.SearchFilter]
     filterset_fields = ['fullName','walletAddress','user','investorTypeId','kycVerified','email']
+    search_fields = ['fullName','walletAddress','investorTypeId','kycVerified','email']
+    def get_queryset(self):
+        return
 
     def get(self, request):
         try:
-            user_obj = self.user_model.objects.all()
+            user_obj = self.filter_queryset(self.user_model.objects.all())
         except self.user_model.DoesNotExist:
             return Response('User has not been created yet',
                             status=status.HTTP_404_NOT_FOUND)
@@ -163,9 +171,10 @@ class UserView(APIView):
             user_obj,
             many=True
         )
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-class RegisterView(APIView):
+class RegisterView(generics.GenericAPIView):
     
     serializer_class = user_serializers.UserSerializer
     user_model = user_models.User
@@ -221,8 +230,9 @@ class EventView(generics.GenericAPIView):
     property_model = user_models.Property
     user_model = user_models.User
     permission_classes = (IsAuthenticatedOrReadOnly,) 
-    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filterset_fields = ('tokenOwner', 'eventCreator', 'eventDateTime', 'token', 'txNFTId', 'txAvaxId','eventType','eventId')
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,filters.SearchFilter)
+    filterset_fields = ('tokenOwner', 'eventCreator', 'eventDateTime', 'token','token__property__avalancheAssetId', 'txNFTId', 'txAvaxId','eventType','eventId','avalancheAssetId')
+    search_fields = ['eventDateTime', 'token__property__propertyName', 'txNFTId', 'txAvaxId','eventType','eventId','avalancheAssetId']
     def get_queryset(self):
         return
 
