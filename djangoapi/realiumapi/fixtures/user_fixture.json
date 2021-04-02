@@ -1,0 +1,152 @@
+[
+    {
+        "model": "auth.user",
+        "pk": 7,
+        "fields":{
+            "username": "greg.anderson@email.com",
+            "first_name": "Greg",
+            "last_name": "Anderson",
+            "email": "greg.anderson@email.com",
+            "is_active": true,
+            "password": "pbkdf2_sha256$216000$oB4vEhcLgt8o$IO+AIURjb0YiJpCcubQ4wGUa49FmvRROrH/Sq2Tisrw="
+        }
+    },
+    {
+        "model": "auth.user",
+        "pk": 2,
+        "fields":{
+            "username": "gove.allen@email.com",
+            "first_name": "Gove",
+            "last_name": "Allen",
+            "email": "gove.allen@email.com",
+            "is_active": true,
+            "password": "pbkdf2_sha256$216000$oB4vEhcLgt8o$IO+AIURjb0YiJpCcubQ4wGUa49FmvRROrH/Sq2Tisrw="
+        }
+    },
+    {
+        "model": "auth.user",
+        "pk": 3,
+        "fields":{
+            "username": "degan.kettles@email.com",
+            "first_name": "Degan",
+            "last_name": "Kettles",
+            "email": "degan.kettles@email.com",
+            "is_active": true,
+            "password": "pbkdf2_sha256$216000$oB4vEhcLgt8o$IO+AIURjb0YiJpCcubQ4wGUa49FmvRROrH/Sq2Tisrw="
+        }
+    },
+    {
+        "model": "auth.user",
+        "pk": 4,
+        "fields":{
+            "username": "jeff.jenkins@email.com",
+            "first_name": "Jeff",
+            "last_name": "Jenkins",
+            "email": "jeff.jenkins@email.com",
+            "is_active": true,
+            "password": "pbkdf2_sha256$216000$oB4vEhcLgt8o$IO+AIURjb0YiJpCcubQ4wGUa49FmvRROrH/Sq2Tisrw="
+        }
+    },
+    {
+        "model": "auth.user",
+        "pk": 5,
+        "fields":{
+            "username": "mark.keith@email.com",
+            "first_name": "Mark",
+            "last_name": "Keith",
+            "email": "mark.keith@email.com",
+            "is_active": true,
+            "password": "pbkdf2_sha256$216000$oB4vEhcLgt8o$IO+AIURjb0YiJpCcubQ4wGUa49FmvRROrH/Sq2Tisrw="
+        }
+    },
+    {
+        "model": "auth.user",
+        "pk": 6,
+        "fields":{
+            "username": "steve.liddle@email.com",
+            "first_name": "Steve",
+            "last_name": "Liddle",
+            "email": "steve.liddle@email.com",
+            "is_active": true,
+            "password": "pbkdf2_sha256$216000$oB4vEhcLgt8o$IO+AIURjb0YiJpCcubQ4wGUa49FmvRROrH/Sq2Tisrw="
+        }
+    },
+    {
+        "model": "api.user",
+        "pk":2,
+        "fields":{
+            "fullName": "Gove Allen",
+            "investorTypeId": 1,
+            "kycVerified": true,
+            "email": "gove.allen@email.com",
+            "avaxusername": "gove.allen@email.com",
+            "avaxpassword": "realiumpassword",
+            "user":2
+        }
+    },
+    {
+        "model": "api.user",
+        "pk":3,
+        "fields":{
+            "fullName": "Degan Kettles",
+            "investorTypeId": 1,
+            "kycVerified": true,
+            "email": "degan.kettles@email.com",
+            "avaxusername": "degan.kettles@email.com",
+            "avaxpassword": "realiumpassword",
+            "user":3
+        }
+    },
+    {
+        "model": "api.user",
+        "pk":4,
+        "fields":{
+            "fullName": "Jeff Jenkins",
+            "investorTypeId": 1,
+            "kycVerified": true,
+            "email": "jeff.jenkins@email.com",
+            "avaxusername": "jeff.jenkins@email.com",
+            "avaxpassword": "realiumpassword",
+            "user":4
+        }
+    },
+    {
+        "model": "api.user",
+        "pk":5,
+        "fields":{
+            "fullName": "Mark Keith",
+            "investorTypeId": 1,
+            "kycVerified": true,
+            "email": "mark.keith@email.com",
+            "avaxusername": "mark.keith@email.com",
+            "avaxpassword": "realiumpassword",
+            "user":5
+        }
+    },
+    {
+        "model": "api.user",
+        "pk":6,
+        "fields":{
+            "fullName": "Steve Liddle",
+            "investorTypeId": 1,
+            "kycVerified": true,
+            "email": "steve.liddle@email.com",
+            "avaxusername": "steve.liddle@email.com",
+            "avaxpassword": "realiumpassword",
+            "user":6
+        }
+    },
+    {
+        "model": "api.user",
+        "pk":7,
+        "fields":{
+            "fullName": "Greg Anderson",
+            "investorTypeId": 1,
+            "kycVerified": true,
+            "email": "ger.allen@email.com",
+            "avaxusername": "gove.allen@email.com",
+            "avaxpassword": "realiumpassword",
+            "user":7
+        }
+    }
+]
