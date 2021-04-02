@@ -15,8 +15,7 @@ class User(models.Model):
     realiumUserId = models.AutoField(primary_key=True)
     user = models.OneToOneField(
         auth_models.User,
-        on_delete=models.CASCADE,
-        related_name='user'
+        on_delete=models.CASCADE
     )
     fullName = models.CharField(max_length=100)
     investorTypeId = models.SmallIntegerField()
@@ -85,5 +84,6 @@ class Event(models.Model):
     txNFTId = models.CharField(max_length=200, null=True) #the transaction of sending the NFT
     txAvaxId = models.CharField(max_length=200, null=True) #the transaction of sending the AVAX
     eventDateTime = models.DateTimeField(auto_now_add=True)
+    avalancheAssetId = models.CharField(max_length=60, null=True)
 
 

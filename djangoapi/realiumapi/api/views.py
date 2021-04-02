@@ -67,7 +67,6 @@ class TokenView(generics.GenericAPIView):
 
         if serializer.is_valid():
             serializer.save()
-        print(serializer.errors)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -123,7 +122,6 @@ class PropertyView(generics.GenericAPIView):
 
         if serializer.is_valid():
             serializer.save()
-        #print(serializer.errors)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -146,20 +144,17 @@ class PropertyView(generics.GenericAPIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-class UserView(generics.GenericAPIView):
+class UserView(APIView):
 
     serializer_class = user_serializers.UserSerializer
     user_model = user_models.User
     permission_classes = (IsAuthenticatedOrReadOnly,) 
-    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = ['fullName','walletAddress','user','investorTypeId','kycVerified','email']
-
-    def get_queryset(self):
-        return
 
     def get(self, request):
         try:
-            user_obj = self.filter_queryset(self.user_model.objects.all())
+            user_obj = self.user_model.objects.all()
         except self.user_model.DoesNotExist:
             return Response('User has not been created yet',
                             status=status.HTTP_404_NOT_FOUND)
@@ -214,7 +209,7 @@ class RegisterView(APIView):
         )
 
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(user = newUser)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -223,10 +218,11 @@ class EventView(generics.GenericAPIView):
     serializer_class = user_serializers.EventSerializer
     event_model = user_models.Event
     token_model = user_models.Token
+    property_model = user_models.Property
     user_model = user_models.User
-    # permission_classes = (IsAuthenticatedOrReadOnly,) 
+    permission_classes = (IsAuthenticatedOrReadOnly,) 
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filterset_fields = ('tokenOwner', 'eventCreator', 'eventDateTime', 'token', 'txNFTId', 'txAvaxId','eventType','eventId','property')
+    filterset_fields = ('tokenOwner', 'eventCreator', 'eventDateTime', 'token', 'txNFTId', 'txAvaxId','eventType','eventId')
     def get_queryset(self):
         return
 
@@ -247,6 +243,7 @@ class EventView(generics.GenericAPIView):
         #Check for NFT ownership
         #Avalanche API
         #transfer NFT to receiver
+        property = self.property_model.objects.get(pk=request.data["property"])
 
         if request.data['eventType']=='SALE':
             numTokens = int(request.data['quantity'])
@@ -390,28 +387,27 @@ class EventView(generics.GenericAPIView):
                 )
                 
                 if serializer.is_valid():
-                    serializer.save()
-                print(serializer.errors)
+                    serializer.save(property = property, token=token)
 
         #if the event is not a SALE
-        elif request.data['eventType']=='OFFER':
-            offerEvent_dict = {
-                'token' : request.data['tokenId'],
-                'tokenOwner' : request.data['tokenOwner'], 
-                'eventCreator' : request.data['eventCreator'],
-                'txNFTId': None,
-                'txAvaxId': None,
-                'quantity': 1,
-                'eventType': request.data['eventType'],
-                'property': request.data['property'],
-                'listedPrice': None, #need clarification of what offer is
-                'purchasedPrice': None,
-            }
-            query_dict = QueryDict('', mutable=True)
-            query_dict.update(offerEvent_dict)
-            serializer = self.serializer_class(
-                data=query_dict
-            )
+        # elif request.data['eventType']=='OFFER':
+        #     offerEvent_dict = {
+        #         'token' : request.data['tokenId'],
+        #         'tokenOwner' : request.data['tokenOwner'], 
+        #         'eventCreator' : request.data['eventCreator'],
+        #         'txNFTId': None,
+        #         'txAvaxId': None,
+        #         'quantity': 1,
+        #         'eventType': request.data['eventType'],
+        #         'property': request.data['property'],
+        #         'listedPrice': None, #need clarification of what offer is
+        #         'purchasedPrice': None,
+        #     }
+        #     query_dict = QueryDict('', mutable=True)
+        #     query_dict.update(offerEvent_dict)
+        #     serializer = self.serializer_class(
+        #         data=query_dict
+        #     )
 
         elif request.data['eventType']=='LIST':
             #GET TOKEN AND CHANGE TO LISTED
@@ -440,7 +436,7 @@ class EventView(generics.GenericAPIView):
                     data=query_dict
                 )
                 if serializer.is_valid():
-                    serializer.save()
+                    serializer.save(property = property, token=token)
 
         elif request.data['eventType']=='UNLIST':
             #GET TOKEN AND CHANGE TO UNLISTED
@@ -468,7 +464,7 @@ class EventView(generics.GenericAPIView):
                     data=query_dict
                 )
                 if serializer.is_valid():
-                    serializer.save()
+                    serializer.save(property = property, token=token)
         else:
             exit
 
