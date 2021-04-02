@@ -1,8 +1,10 @@
 from rest_framework import serializers
+import django.contrib.auth.models as auth_models
 
 from .models import User, Token, Event, Property
 
 class UserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = "__all__"
@@ -13,9 +15,9 @@ class PropertySerializer(serializers.ModelSerializer):
     class Meta:
         model = Property
         fields = "__all__"
+        depth = 1
         
 class TokenSerializer(serializers.ModelSerializer):
-    property = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Token
