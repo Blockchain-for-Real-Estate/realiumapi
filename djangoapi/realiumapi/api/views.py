@@ -43,7 +43,7 @@ class TokenView(generics.GenericAPIView):
     permission_classes = (IsAuthenticatedOrReadOnly,) 
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,filters.SearchFilter)
     filterset_fields = ('listed', 'listedPrice', 'owner', 'owner_id', 'property', 'property_id', 'purchasedPrice', 'tokenId')
-    search_fields = ['listed', 'listedPrice', 'purchasedPrice', 'property__propertyName','property__avalancheAssetId','tokenId','owner__fullName','owner__email''owner__realiumUserId']
+    search_fields = ['listed', 'listedPrice', 'purchasedPrice', 'property__propertyName','property__avalancheAssetId','tokenId','owner__fullName','owner__email','owner__realiumUserId']
     def get_queryset(self):
         return
 
