@@ -425,9 +425,9 @@ class EventView(generics.GenericAPIView):
         elif request.data['eventType']=='LIST':
             #GET TOKEN AND CHANGE TO LISTED
             numTokens = int(request.data['quantity'])
-            listedTokens = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']),listed=False)[:numTokens]
+            listedTokens = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']))[:numTokens]
             if len(listedTokens)>0:
-                for num in range(0,numTokens): 
+                for num in range(0,len(listedTokens)): 
                     eventCreator = self.user_model.objects.get(pk=request.data['eventCreator'])
                     tokenOwner = self.user_model.objects.get(pk=request.data['tokenOwner'])
                     changedToken = self.token_model.objects.get(pk=listedTokens[num].tokenId)
@@ -461,7 +461,7 @@ class EventView(generics.GenericAPIView):
             numTokens = int(request.data['quantity'])
             unlistedTokens = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']),listed=True)[:numTokens]
             if len(unlistedTokens)>0:
-                for num in range(0,numTokens):
+                for num in range(0,len(unlistedTokens)):
                     eventCreator = self.user_model.objects.get(pk=request.data['eventCreator'])
                     tokenOwner = self.user_model.objects.get(pk=request.data['tokenOwner'])
                     changedToken = self.token_model.objects.get(pk=unlistedTokens[num].tokenId)
