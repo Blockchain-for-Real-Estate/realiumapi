@@ -260,7 +260,7 @@ class EventView(generics.GenericAPIView):
             txNFTId = str('')
             txAvaxId = str('')
             if len(tokensToBeSold)>0:
-                for num in range(0,len(tokensToBeSold)):
+                for num in range(0,len(tokensToBeSold)-1):
                     token = self.token_model.objects.get(pk=tokensToBeSold[num].tokenId)
                     eventCreator = self.user_model.objects.get(pk=request.data['eventCreator'])
                     tokenOwner = self.user_model.objects.get(pk=request.data['tokenOwner'])
@@ -429,7 +429,7 @@ class EventView(generics.GenericAPIView):
             numTokens = int(request.data['quantity'])
             listedTokens = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']))[:numTokens]
             if len(listedTokens)>0:
-                for num in range(0,len(listedTokens)): 
+                for num in range(0,len(listedTokens)-1): 
                     eventCreator = self.user_model.objects.get(pk=request.data['eventCreator'])
                     tokenOwner = self.user_model.objects.get(pk=request.data['tokenOwner'])
                     changedToken = self.token_model.objects.get(pk=listedTokens[num].tokenId)
@@ -463,7 +463,7 @@ class EventView(generics.GenericAPIView):
             numTokens = int(request.data['quantity'])
             unlistedTokens = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']),listed=True)[:numTokens]
             if len(unlistedTokens)>0:
-                for num in range(0,len(unlistedTokens)):
+                for num in range(0,len(unlistedTokens)-1):
                     eventCreator = self.user_model.objects.get(pk=request.data['eventCreator'])
                     tokenOwner = self.user_model.objects.get(pk=request.data['tokenOwner'])
                     changedToken = self.token_model.objects.get(pk=unlistedTokens[num].tokenId)
