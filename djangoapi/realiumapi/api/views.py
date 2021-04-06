@@ -256,151 +256,151 @@ class EventView(generics.GenericAPIView):
 
         if request.data['eventType']=='SALE':
             numTokens = int(request.data['quantity'])
-            if numTokens>0:
-                tokensToBeSold = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']),listed=True)[:numTokens]
+            tokensToBeSold = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']),listed=True)[:numTokens]
             txNFTId = str('')
             txAvaxId = str('')
-            for num in range(0,len(tokensToBeSold)):
-                token = self.token_model.objects.get(pk=tokensToBeSold[num].tokenId)
-                eventCreator = self.user_model.objects.get(pk=request.data['eventCreator'])
-                tokenOwner = self.user_model.objects.get(pk=request.data['tokenOwner'])
+            if len(tokensToBeSold)>0:
+                for num in range(0,len(tokensToBeSold)):
+                    token = self.token_model.objects.get(pk=tokensToBeSold[num].tokenId)
+                    eventCreator = self.user_model.objects.get(pk=request.data['eventCreator'])
+                    tokenOwner = self.user_model.objects.get(pk=request.data['tokenOwner'])
 
-                try: 
-                    array = [tokenOwner.walletAddress]
-                    transferNFTResponse = requests.post(AVALANCHENODE, 
-                                            json={
-                                                "jsonrpc":"2.0",
-                                                "id"    : 1,
-                                                "method" :'avm.sendNFT',
-                                                "params" :{ 
-                                                    "assetID" : token.property.avalancheAssetId,
-                                                    "from"    : array,
-                                                    "to"      : eventCreator.walletAddress,
-                                                    "groupID" : 0,
-                                                    "changeAddr": eventCreator.walletAddress, #which xchain?
-                                                    "username": "capstone",
-                                                    "password": "D835$938jemv@2"
-                                                }
-                                            })
-                    
-
-                    txResponse = JSON.loads(str(transferNFTResponse.text))
-
-                    if 'error' in txResponse:
-                        if 'insufficient funds' in txResponse['error']['message']:
-                            raise Exception("NFT not owned, please select an Token available to sell")
-                        raise Exception(txResponse['error']['message'])
-                    else:
-                        txNFTId = txResponse['result']['txID']
-
-                except requests.exceptions.RequestException as err:
-                    print ("Oops: Somebody got ya ",err)
-                except requests.exceptions.HTTPError as errh:
-                    print ("Http Error:",errh)
-                except requests.exceptions.ConnectionError as errc:
-                    print ("Error Connecting:",errc)
-                except requests.exceptions.Timeout as errt:
-                    print ("Timeout Error:",errt) 
-
-                #Transfer AVAX to sender
-                try:
-                    checkBalanceJson ={
-                                            "jsonrpc":"2.0",
-                                            "id"     : 1,
-                                            "method" :"avm.getBalance",
-                                            "params" :{
-                                                "address": eventCreator.walletAddress,
-                                                "assetId": "AVAX"
-                                            }
-                                        } 
-                    
-                    checkBalanceResponse = requests.post(AVALANCHENODE, 
-                                json=checkBalanceJson)
-                    checkBalanceResult = JSON.loads(str(checkBalanceResponse.text))
-                    if float(checkBalanceResult["result"]["balance"]) < float(request.data["listedPrice"]): 
-                        raise Exception("Insufficient funds")          
-
-                    array = [eventCreator.walletAddress]
-                    transferAvaxResponse = requests.post(AVALANCHENODE, 
-                                            json={
-                                                    'jsonrpc':'2.0',
-                                                    'id'     :1,
-                                                    'method' :'avm.send',
-                                                    'params' :
-                                                    { 
-                                                        "assetID" : 'AVAX',
-                                                        "amount"  : int(float(request.data["listedPrice"])*1000000000),
+                    try: 
+                        array = [tokenOwner.walletAddress]
+                        transferNFTResponse = requests.post(AVALANCHENODE, 
+                                                json={
+                                                    "jsonrpc":"2.0",
+                                                    "id"    : 1,
+                                                    "method" :'avm.sendNFT',
+                                                    "params" :{ 
+                                                        "assetID" : token.property.avalancheAssetId,
                                                         "from"    : array,
-                                                        "to"      : tokenOwner.walletAddress,
-                                                        "changeAddr": tokenOwner.walletAddress,
-                                                        "memo"    : "AVAX has been transferred for your sale of "+token.property.avalancheAssetId,
-                                                        'username': 'capstone',
-                                                        'password': 'D835$938jemv@2'
+                                                        "to"      : eventCreator.walletAddress,
+                                                        "groupID" : 0,
+                                                        "changeAddr": eventCreator.walletAddress, #which xchain?
+                                                        "username": "capstone",
+                                                        "password": "D835$938jemv@2"
                                                     }
                                                 })
+                        
 
-                    txResponse = JSON.loads(str(transferAvaxResponse.text))
+                        txResponse = JSON.loads(str(transferNFTResponse.text))
 
-                    txAvaxId = txResponse['result']['txID']
+                        if 'error' in txResponse:
+                            if 'insufficient funds' in txResponse['error']['message']:
+                                raise Exception("NFT not owned, please select an Token available to sell")
+                            raise Exception(txResponse['error']['message'])
+                        else:
+                            txNFTId = txResponse['result']['txID']
 
-                except:
-                    #EXCEPTION THROWN FUNDS NOT SENT AND NFT RETURNED
-                    array = []
-                    array.append(eventCreator.walletAddress)
-                    json ={
-                            "jsonrpc":"2.0",
-                            "id"    : 1,
-                            "method" :'avm.sendNFT',
-                            "params" :{ 
-                                "assetID" : token.property.avalancheAssetId,
-                                "from"    : array,
-                                "to"      : tokenOwner.walletAddress,
-                                "groupID" : 0,
-                                "changeAddr": tokenOwner.walletAddress,
-                                "username": "capstone",
-                                "password": "D835$938jemv@2"
+                    except requests.exceptions.RequestException as err:
+                        print ("Oops: Somebody got ya ",err)
+                    except requests.exceptions.HTTPError as errh:
+                        print ("Http Error:",errh)
+                    except requests.exceptions.ConnectionError as errc:
+                        print ("Error Connecting:",errc)
+                    except requests.exceptions.Timeout as errt:
+                        print ("Timeout Error:",errt) 
+
+                    #Transfer AVAX to sender
+                    try:
+                        checkBalanceJson ={
+                                                "jsonrpc":"2.0",
+                                                "id"     : 1,
+                                                "method" :"avm.getBalance",
+                                                "params" :{
+                                                    "address": eventCreator.walletAddress,
+                                                    "assetId": "AVAX"
+                                                }
+                                            } 
+                        
+                        checkBalanceResponse = requests.post(AVALANCHENODE, 
+                                    json=checkBalanceJson)
+                        checkBalanceResult = JSON.loads(str(checkBalanceResponse.text))
+                        if float(checkBalanceResult["result"]["balance"]) < float(request.data["listedPrice"]): 
+                            raise Exception("Insufficient funds")          
+
+                        array = [eventCreator.walletAddress]
+                        transferAvaxResponse = requests.post(AVALANCHENODE, 
+                                                json={
+                                                        'jsonrpc':'2.0',
+                                                        'id'     :1,
+                                                        'method' :'avm.send',
+                                                        'params' :
+                                                        { 
+                                                            "assetID" : 'AVAX',
+                                                            "amount"  : int(float(request.data["listedPrice"])*1000000000),
+                                                            "from"    : array,
+                                                            "to"      : tokenOwner.walletAddress,
+                                                            "changeAddr": tokenOwner.walletAddress,
+                                                            "memo"    : "AVAX has been transferred for your sale of "+token.property.avalancheAssetId,
+                                                            'username': 'capstone',
+                                                            'password': 'D835$938jemv@2'
+                                                        }
+                                                    })
+
+                        txResponse = JSON.loads(str(transferAvaxResponse.text))
+
+                        txAvaxId = txResponse['result']['txID']
+
+                    except:
+                        #EXCEPTION THROWN FUNDS NOT SENT AND NFT RETURNED
+                        array = []
+                        array.append(eventCreator.walletAddress)
+                        json ={
+                                "jsonrpc":"2.0",
+                                "id"    : 1,
+                                "method" :'avm.sendNFT',
+                                "params" :{ 
+                                    "assetID" : token.property.avalancheAssetId,
+                                    "from"    : array,
+                                    "to"      : tokenOwner.walletAddress,
+                                    "groupID" : 0,
+                                    "changeAddr": tokenOwner.walletAddress,
+                                    "username": "capstone",
+                                    "password": "D835$938jemv@2"
+                                }
                             }
-                        }
-                    transferBackNFTResponse = requests.post(AVALANCHENODE, 
-                                    json=json)
-                    txResponse = JSON.loads(str(transferBackNFTResponse.text))
-                    raise Exception("Insufficient funds")
-                    exit
+                        transferBackNFTResponse = requests.post(AVALANCHENODE, 
+                                        json=json)
+                        txResponse = JSON.loads(str(transferBackNFTResponse.text))
+                        raise Exception("Insufficient funds")
+                        exit
 
-                saleEvent_dict = {
-                    'token' : token.tokenId,
-                    'tokenOwner' : tokenOwner.realiumUserId, 
-                    'eventCreator' : eventCreator.realiumUserId,
-                    'txNFTId': txNFTId,
-                    'txAvaxId': txAvaxId,
-                    'quantity': 1,
-                    'eventType': request.data['eventType'],
-                    'property': token.property.propertyId,
-                    'listedPrice': request.data['listedPrice'], 
-                    'purchasedPrice': request.data['listedPrice'],
-                    'avalancheAssetId': token.property.avalancheAssetId
-                }
+                    saleEvent_dict = {
+                        'token' : token.tokenId,
+                        'tokenOwner' : tokenOwner.realiumUserId, 
+                        'eventCreator' : eventCreator.realiumUserId,
+                        'txNFTId': txNFTId,
+                        'txAvaxId': txAvaxId,
+                        'quantity': 1,
+                        'eventType': request.data['eventType'],
+                        'property': token.property.propertyId,
+                        'listedPrice': request.data['listedPrice'], 
+                        'purchasedPrice': request.data['listedPrice'],
+                        'avalancheAssetId': token.property.avalancheAssetId
+                    }
 
-                query_dict = QueryDict('', mutable=True)
-                query_dict.update(saleEvent_dict)
+                    query_dict = QueryDict('', mutable=True)
+                    query_dict.update(saleEvent_dict)
 
-                #get Token
-                token_obj = self.token_model.objects.get(pk=token.tokenId)
-                #change Token owner
-                user = self.user_model.objects.filter(walletAddress=eventCreator.walletAddress)[0]
-                token_obj.owner = user
-                token_obj.listed = False
-                token_obj.purchasedPrice = request.data["listedPrice"]
-                #save Token
-                token_obj.save()
+                    #get Token
+                    token_obj = self.token_model.objects.get(pk=token.tokenId)
+                    #change Token owner
+                    user = self.user_model.objects.filter(walletAddress=eventCreator.walletAddress)[0]
+                    token_obj.owner = user
+                    token_obj.listed = False
+                    token_obj.purchasedPrice = request.data["listedPrice"]
+                    #save Token
+                    token_obj.save()
 
-                serializer = self.serializer_class(
-                    data=query_dict
-                )
-                
-                if serializer.is_valid():
-                    serializer.save(property = property, token=token, tokenOwner=tokenOwner, eventCreator=eventCreator)
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                    serializer = self.serializer_class(
+                        data=query_dict
+                    )
+                    
+                    if serializer.is_valid():
+                        serializer.save(property = property, token=token, tokenOwner=tokenOwner, eventCreator=eventCreator)
+                    return Response(serializer.data, status=status.HTTP_200_OK)
 
         #if the event is not a SALE
         # elif request.data['eventType']=='OFFER':
@@ -425,69 +425,69 @@ class EventView(generics.GenericAPIView):
         elif request.data['eventType']=='LIST':
             #GET TOKEN AND CHANGE TO LISTED
             numTokens = int(request.data['quantity'])
-            if numTokens>0:
-                listedTokens = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']),listed=False)[:numTokens]
-            for num in range(0,numTokens): 
-                eventCreator = self.user_model.objects.get(pk=request.data['eventCreator'])
-                tokenOwner = self.user_model.objects.get(pk=request.data['tokenOwner'])
-                changedToken = self.token_model.objects.get(pk=listedTokens[num].tokenId)
-                changedToken.listed=True
-                changedToken.listedPrice=request.data['listedPrice']
-                changedToken.save()
-                listedEvent_dict = {
-                    'token' : listedTokens[num].tokenId,
-                    'tokenOwner' : request.data['eventCreator'], 
-                    'eventCreator' : request.data['eventCreator'],
-                    'txNFTId': None,
-                    'txAvaxId': None,
-                    'quantity': 1,
-                    'eventType': request.data['eventType'],
-                    'property': listedTokens[num].property.propertyId,
-                    'listedPrice': request.data['listedPrice'],
-                    'purchasedPrice': request.data['purchasedPrice'],
-                }
-                query_dict = QueryDict('', mutable=True)
-                query_dict.update(listedEvent_dict)
-                serializer = self.serializer_class(
-                    data=query_dict
-                )
-                if serializer.is_valid():
-                    serializer.save(property = property, token=changedToken, eventCreator=eventCreator, tokenOwner=tokenOwner)
+            listedTokens = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']),listed=False)[:numTokens]
+            if len(listedTokens)>0:
+                for num in range(0,numTokens): 
+                    eventCreator = self.user_model.objects.get(pk=request.data['eventCreator'])
+                    tokenOwner = self.user_model.objects.get(pk=request.data['tokenOwner'])
+                    changedToken = self.token_model.objects.get(pk=listedTokens[num].tokenId)
+                    changedToken.listed=True
+                    changedToken.listedPrice=request.data['listedPrice']
+                    changedToken.save()
+                    listedEvent_dict = {
+                        'token' : listedTokens[num].tokenId,
+                        'tokenOwner' : request.data['eventCreator'], 
+                        'eventCreator' : request.data['eventCreator'],
+                        'txNFTId': None,
+                        'txAvaxId': None,
+                        'quantity': 1,
+                        'eventType': request.data['eventType'],
+                        'property': listedTokens[num].property.propertyId,
+                        'listedPrice': request.data['listedPrice'],
+                        'purchasedPrice': request.data['purchasedPrice'],
+                    }
+                    query_dict = QueryDict('', mutable=True)
+                    query_dict.update(listedEvent_dict)
+                    serializer = self.serializer_class(
+                        data=query_dict
+                    )
+                    if serializer.is_valid():
+                        serializer.save(property = property, token=changedToken, eventCreator=eventCreator, tokenOwner=tokenOwner)
 
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                    return Response(serializer.data, status=status.HTTP_200_OK)
 
         elif request.data['eventType']=='UNLIST':
             #GET TOKEN AND CHANGE TO UNLISTED
             numTokens = int(request.data['quantity'])
-            if numTokens>0:
-                unlistedTokens = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']),listed=False)[:numTokens]
-            for num in range(0,numTokens):
-                eventCreator = self.user_model.objects.get(pk=request.data['eventCreator'])
-                tokenOwner = self.user_model.objects.get(pk=request.data['tokenOwner'])
-                changedToken = self.token_model.objects.get(pk=unlistedTokens[num].tokenId)
-                changedToken.listed=False
-                changedToken.save()
-                listedEvent_dict = {
-                    'token' : unlistedTokens[num].tokenId,
-                    'tokenOwner' : request.data['eventCreator'], 
-                    'eventCreator' : request.data['eventCreator'],
-                    'txNFTId': None,
-                    'txAvaxId': None,
-                    'quantity': 1,
-                    'eventType': request.data['eventType'],
-                    'property': request.data['property'],
-                    'listedPrice': None,
-                    'purchasedPrice': None,
-                }
-                query_dict = QueryDict('', mutable=True)
-                query_dict.update(listedEvent_dict)
-                serializer = self.serializer_class(
-                    data=query_dict
-                )
-                if serializer.is_valid():
-                    serializer.save(property = property, token=changedToken, eventCreator=eventCreator, tokenOwner=tokenOwner)
-                
-                return Response(serializer.data, status=status.HTTP_200_OK)
+            unlistedTokens = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']),listed=False)[:numTokens]
+            if len(unlistedTokens)>0:
+                for num in range(0,numTokens):
+                    eventCreator = self.user_model.objects.get(pk=request.data['eventCreator'])
+                    tokenOwner = self.user_model.objects.get(pk=request.data['tokenOwner'])
+                    changedToken = self.token_model.objects.get(pk=unlistedTokens[num].tokenId)
+                    changedToken.listed=False
+                    changedToken.save()
+                    listedEvent_dict = {
+                        'token' : unlistedTokens[num].tokenId,
+                        'tokenOwner' : request.data['eventCreator'], 
+                        'eventCreator' : request.data['eventCreator'],
+                        'txNFTId': None,
+                        'txAvaxId': None,
+                        'quantity': 1,
+                        'eventType': request.data['eventType'],
+                        'property': request.data['property'],
+                        'listedPrice': None,
+                        'purchasedPrice': None,
+                    }
+                    query_dict = QueryDict('', mutable=True)
+                    query_dict.update(listedEvent_dict)
+                    serializer = self.serializer_class(
+                        data=query_dict
+                    )
+                    if serializer.is_valid():
+                        serializer.save(property = property, token=changedToken, eventCreator=eventCreator, tokenOwner=tokenOwner)
+                    
+                    return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             exit
         
