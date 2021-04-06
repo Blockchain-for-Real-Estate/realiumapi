@@ -329,7 +329,7 @@ class EventView(generics.GenericAPIView):
                                                         'params' :
                                                         { 
                                                             "assetID" : 'AVAX',
-                                                            "amount"  : float(request.data["listedPrice"])*1000000000,
+                                                            "amount"  : int(float(request.data["listedPrice"])*1000000000),
                                                             "from"    : array,
                                                             "to"      : tokenOwner.walletAddress,
                                                             "changeAddr": tokenOwner.walletAddress,
