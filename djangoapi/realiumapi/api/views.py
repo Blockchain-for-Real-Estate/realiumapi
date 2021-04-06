@@ -262,8 +262,8 @@ class EventView(generics.GenericAPIView):
             if len(tokensToBeSold)>0:
                 for num in range(0,len(tokensToBeSold)):
                     token = self.token_model.objects.get(pk=tokensToBeSold[num].tokenId)
-                    eventCreator = self.user_model.objects.get(pk=request.data['eventCreator'])
-                    tokenOwner = self.user_model.objects.get(pk=request.data['tokenOwner'])
+                    eventCreator = self.user_model.objects.get(pk=int(request.data['eventCreator']))
+                    tokenOwner = self.user_model.objects.get(pk=int(request.data['tokenOwner']))
 
                     try: 
                         array = [tokenOwner.walletAddress]
@@ -428,8 +428,8 @@ class EventView(generics.GenericAPIView):
             listedTokens = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']))[:numTokens]
             if len(listedTokens)>0:
                 for num in range(0,len(listedTokens)): 
-                    eventCreator = self.user_model.objects.get(pk=request.data['eventCreator'])
-                    tokenOwner = self.user_model.objects.get(pk=request.data['tokenOwner'])
+                    eventCreator = self.user_model.objects.get(pk=int(request.data['eventCreator']))
+                    tokenOwner = self.user_model.objects.get(pk=int(request.data['tokenOwner']))
                     changedToken = self.token_model.objects.get(pk=listedTokens[num].tokenId)
                     changedToken.listed=True
                     changedToken.listedPrice=request.data['listedPrice']
@@ -462,8 +462,8 @@ class EventView(generics.GenericAPIView):
             unlistedTokens = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']),listed=True)[:numTokens]
             if len(unlistedTokens)>0:
                 for num in range(0,len(unlistedTokens)):
-                    eventCreator = self.user_model.objects.get(pk=request.data['eventCreator'])
-                    tokenOwner = self.user_model.objects.get(pk=request.data['tokenOwner'])
+                    eventCreator = self.user_model.objects.get(pk=int(request.data['eventCreator']))
+                    tokenOwner = self.user_model.objects.get(pk=int(request.data['tokenOwner']))
                     changedToken = self.token_model.objects.get(pk=unlistedTokens[num].tokenId)
                     changedToken.listed=False
                     changedToken.save()
