@@ -256,7 +256,7 @@ class EventView(generics.GenericAPIView):
 
         if request.data['eventType']=='SALE':
             numTokens = int(request.data['quantity'])
-            tokensToBeSold = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']),listed=True)[:numTokens]
+            tokensToBeSold = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner'], listedPrice=int(request.data['listedPrice'])),listed=True)[:numTokens]
             txNFTId = str('')
             txAvaxId = str('')
             if len(tokensToBeSold)>0:
@@ -387,7 +387,7 @@ class EventView(generics.GenericAPIView):
                     #get Token
                     token_obj = self.token_model.objects.get(pk=token.tokenId)
                     #change Token owner
-                    user = self.user_model.objects.filter(walletAddress=eventCreator.walletAddress)[0]
+                    user = self.user_model.objects.get(pk=eventCreator.realiumUserId)
                     token_obj.owner = user
                     token_obj.listed = False
                     token_obj.purchasedPrice = request.data["listedPrice"]
