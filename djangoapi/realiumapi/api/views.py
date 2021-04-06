@@ -342,6 +342,14 @@ class EventView(generics.GenericAPIView):
                         txResponse = JSON.loads(str(transferAvaxResponse.text))
 
                         txAvaxId = txResponse['result']['txID']
+                        token_obj = self.token_model.objects.get(pk=token.tokenId)
+                        #change Token owner
+                        user = self.user_model.objects.get(pk=eventCreator.realiumUserId)
+                        token_obj.owner = user
+                        token_obj.listed = False
+                        token_obj.purchasedPrice = request.data["listedPrice"]
+                        #save Token
+                        token_obj.save()
 
                     except:
                         #EXCEPTION THROWN FUNDS NOT SENT AND NFT RETURNED
@@ -367,39 +375,29 @@ class EventView(generics.GenericAPIView):
                         raise Exception("Insufficient funds")
                         exit
 
-                    saleEvent_dict = {
-                        'token' : token.tokenId,
-                        'tokenOwner' : tokenOwner.realiumUserId, 
-                        'eventCreator' : eventCreator.realiumUserId,
-                        'txNFTId': txNFTId,
-                        'txAvaxId': txAvaxId,
-                        'quantity': 1,
-                        'eventType': request.data['eventType'],
-                        'property': token.property.propertyId,
-                        'listedPrice': request.data['listedPrice'], 
-                        'purchasedPrice': request.data['listedPrice'],
-                        'avalancheAssetId': token.property.avalancheAssetId
-                    }
+                saleEvent_dict = {
+                    'token' : token.tokenId,
+                    'tokenOwner' : tokenOwner.realiumUserId, 
+                    'eventCreator' : eventCreator.realiumUserId,
+                    'txNFTId': txNFTId,
+                    'txAvaxId': txAvaxId,
+                    'quantity': len(tokensToBeSold),
+                    'eventType': request.data['eventType'],
+                    'property': token.property.propertyId,
+                    'listedPrice': request.data['listedPrice'], 
+                    'purchasedPrice': request.data['listedPrice'],
+                    'avalancheAssetId': token.property.avalancheAssetId
+                }
 
-                    query_dict = QueryDict('', mutable=True)
-                    query_dict.update(saleEvent_dict)
+                query_dict = QueryDict('', mutable=True)
+                query_dict.update(saleEvent_dict)
 
-                    #get Token
-                    token_obj = self.token_model.objects.get(pk=token.tokenId)
-                    #change Token owner
-                    user = self.user_model.objects.get(pk=eventCreator.realiumUserId)
-                    token_obj.owner = user
-                    token_obj.listed = False
-                    token_obj.purchasedPrice = request.data["listedPrice"]
-                    #save Token
-                    token_obj.save()
-
-                    serializer = self.serializer_class(
-                        data=query_dict
-                    )
-                    
-                    if serializer.is_valid():
-                        serializer.save(property = property, token=token, tokenOwner=tokenOwner, eventCreator=eventCreator)
+                serializer = self.serializer_class(
+                    data=query_dict
+                )
+                
+                if serializer.is_valid():
+                    serializer.save(property = property, token=token, tokenOwner=tokenOwner, eventCreator=eventCreator)
 
                     
                 return Response(None,status=status.HTTP_200_OK)
@@ -436,27 +434,27 @@ class EventView(generics.GenericAPIView):
                     changedToken.listed=True
                     changedToken.listedPrice=request.data['listedPrice']
                     changedToken.save()
-                    listedEvent_dict = {
-                        'token' : listedTokens[num].tokenId,
-                        'tokenOwner' : request.data['eventCreator'], 
-                        'eventCreator' : request.data['eventCreator'],
-                        'txNFTId': None,
-                        'txAvaxId': None,
-                        'quantity': 1,
-                        'eventType': request.data['eventType'],
-                        'property': listedTokens[num].property.propertyId,
-                        'listedPrice': request.data['listedPrice'],
-                        'purchasedPrice': listedTokens[num].purchasedPrice,
-                    }
-                    query_dict = QueryDict('', mutable=True)
-                    query_dict.update(listedEvent_dict)
-                    serializer = self.serializer_class(
-                        data=query_dict
-                    )
-                    if serializer.is_valid():
-                        serializer.save(property = property, token=changedToken, eventCreator=eventCreator, tokenOwner=tokenOwner)
+                listedEvent_dict = {
+                    'token' : listedTokens[num].tokenId,
+                    'tokenOwner' : request.data['eventCreator'], 
+                    'eventCreator' : request.data['eventCreator'],
+                    'txNFTId': None,
+                    'txAvaxId': None,
+                    'quantity': len(listedTokens),
+                    'eventType': request.data['eventType'],
+                    'property': listedTokens[num].property.propertyId,
+                    'listedPrice': request.data['listedPrice'],
+                    'purchasedPrice': listedTokens[num].purchasedPrice,
+                }
+                query_dict = QueryDict('', mutable=True)
+                query_dict.update(listedEvent_dict)
+                serializer = self.serializer_class(
+                    data=query_dict
+                )
+                if serializer.is_valid():
+                    serializer.save(property = property, token=changedToken, eventCreator=eventCreator, tokenOwner=tokenOwner)
 
-                return Response(None,status=status.HTTP_200_OK)
+                return Response(serializer.data,status=status.HTTP_200_OK)
 
         elif request.data['eventType']=='UNLIST':
             #GET TOKEN AND CHANGE TO UNLISTED
@@ -469,27 +467,27 @@ class EventView(generics.GenericAPIView):
                     changedToken = self.token_model.objects.get(pk=unlistedTokens[num].tokenId)
                     changedToken.listed=False
                     changedToken.save()
-                    listedEvent_dict = {
-                        'token' : unlistedTokens[num].tokenId,
-                        'tokenOwner' : request.data['eventCreator'], 
-                        'eventCreator' : request.data['eventCreator'],
-                        'txNFTId': None,
-                        'txAvaxId': None,
-                        'quantity': 1,
-                        'eventType': request.data['eventType'],
-                        'property': request.data['property'],
-                        'listedPrice': None,
-                        'purchasedPrice': None,
-                    }
-                    query_dict = QueryDict('', mutable=True)
-                    query_dict.update(listedEvent_dict)
-                    serializer = self.serializer_class(
-                        data=query_dict
-                    )
-                    if serializer.is_valid():
-                        serializer.save(property = property, token=changedToken, eventCreator=eventCreator, tokenOwner=tokenOwner)
+                listedEvent_dict = {
+                    'token' : unlistedTokens[num].tokenId,
+                    'tokenOwner' : request.data['eventCreator'], 
+                    'eventCreator' : request.data['eventCreator'],
+                    'txNFTId': None,
+                    'txAvaxId': None,
+                    'quantity': len(unlistedTokens),
+                    'eventType': request.data['eventType'],
+                    'property': request.data['property'],
+                    'listedPrice': None,
+                    'purchasedPrice': None,
+                }
+                query_dict = QueryDict('', mutable=True)
+                query_dict.update(listedEvent_dict)
+                serializer = self.serializer_class(
+                    data=query_dict
+                )
+                if serializer.is_valid():
+                    serializer.save(property = property, token=changedToken, eventCreator=eventCreator, tokenOwner=tokenOwner)
                     
-                return Response(None,status=status.HTTP_200_OK)
+                return Response(serializer.data,status=status.HTTP_200_OK)
         else:
             exit
         
