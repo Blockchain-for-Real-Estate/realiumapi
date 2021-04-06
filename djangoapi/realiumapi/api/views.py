@@ -376,7 +376,7 @@ class EventView(generics.GenericAPIView):
                         exit
 
                 saleEvent_dict = {
-                    'token' : token.tokenId,
+                    'token' : None,
                     'tokenOwner' : tokenOwner.realiumUserId, 
                     'eventCreator' : eventCreator.realiumUserId,
                     'txNFTId': txNFTId,
@@ -435,7 +435,7 @@ class EventView(generics.GenericAPIView):
                     changedToken.listedPrice=request.data['listedPrice']
                     changedToken.save()
                 listedEvent_dict = {
-                    'token' : listedTokens[num].tokenId,
+                    'token' : None,
                     'tokenOwner' : request.data['eventCreator'], 
                     'eventCreator' : request.data['eventCreator'],
                     'txNFTId': None,
@@ -468,7 +468,7 @@ class EventView(generics.GenericAPIView):
                     changedToken.listed=False
                     changedToken.save()
                 listedEvent_dict = {
-                    'token' : unlistedTokens[num].tokenId,
+                    'token' : None,
                     'tokenOwner' : request.data['eventCreator'], 
                     'eventCreator' : request.data['eventCreator'],
                     'txNFTId': None,
