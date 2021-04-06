@@ -256,7 +256,7 @@ class EventView(generics.GenericAPIView):
 
         if request.data['eventType']=='SALE':
             numTokens = int(request.data['quantity'])
-            tokensToBeSold = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner'], listedPrice=float(request.data['listedPrice'])),listed=True)[:numTokens]
+            tokensToBeSold = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']), listedPrice=float(request.data['listedPrice']),listed=True)[:numTokens]
             txNFTId = str('')
             txAvaxId = str('')
             if len(tokensToBeSold)>0:
@@ -329,7 +329,7 @@ class EventView(generics.GenericAPIView):
                                                         'params' :
                                                         { 
                                                             "assetID" : 'AVAX',
-                                                            "amount"  : int(float(request.data["listedPrice"])*1000000000),
+                                                            "amount"  : float(request.data["listedPrice"])*1000000000,
                                                             "from"    : array,
                                                             "to"      : tokenOwner.walletAddress,
                                                             "changeAddr": tokenOwner.walletAddress,
