@@ -444,7 +444,7 @@ class EventView(generics.GenericAPIView):
                         'eventType': request.data['eventType'],
                         'property': listedTokens[num].property.propertyId,
                         'listedPrice': request.data['listedPrice'],
-                        'purchasedPrice': request.data['purchasedPrice'],
+                        'purchasedPrice': listedTokens[num].purchasedPrice,
                     }
                     query_dict = QueryDict('', mutable=True)
                     query_dict.update(listedEvent_dict)
