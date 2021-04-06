@@ -459,7 +459,7 @@ class EventView(generics.GenericAPIView):
         elif request.data['eventType']=='UNLIST':
             #GET TOKEN AND CHANGE TO UNLISTED
             numTokens = int(request.data['quantity'])
-            unlistedTokens = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']),listed=False)[:numTokens]
+            unlistedTokens = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']),listed=True)[:numTokens]
             if len(unlistedTokens)>0:
                 for num in range(0,numTokens):
                     eventCreator = self.user_model.objects.get(pk=request.data['eventCreator'])
