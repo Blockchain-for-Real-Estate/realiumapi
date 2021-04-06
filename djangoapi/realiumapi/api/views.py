@@ -40,7 +40,7 @@ AVALANCHENODE = 'https://ava.realium.io/ext/bc/X'
 class TokenView(generics.GenericAPIView):
     serializer_class = user_serializers.TokenSerializer
     token_model = user_models.Token
-    permission_classes = (IsAuthenticatedOrReadOnly,) 
+    # permission_classes = (IsAuthenticatedOrReadOnly,) 
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,filters.SearchFilter)
     filterset_fields = ('listed', 'listedPrice', 'owner', 'owner_id', 'property', 'property_id', 'purchasedPrice', 'tokenId')
     search_fields = ['listed', 'listedPrice', 'purchasedPrice', 'property__propertyName','property__avalancheAssetId','tokenId','owner__fullName','owner__email','owner__realiumUserId','property__city','property__zipCode','property__streetAddress','property__state','property__yearBuilt','property__country','property__acerage','property__listingType','property__propertyType']
@@ -94,7 +94,7 @@ class TokenView(generics.GenericAPIView):
 class PropertyView(generics.GenericAPIView):
     serializer_class = user_serializers.PropertySerializer
     token_model = user_models.Property
-    permission_classes = (IsAuthenticatedOrReadOnly,) 
+    # permission_classes = (IsAuthenticatedOrReadOnly,) 
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,filters.SearchFilter)
     filterset_fields = ('city','state','propertyId','propertyName','propertyTypeId','listingType','propertyType','legalTypeId','avalancheAssetId',
                         'parcelId','streetAddress','zipCode','forcastedIncome','minInvestment','maxInvestment','yearBuilt'
@@ -153,7 +153,7 @@ class UserView(generics.GenericAPIView):
 
     serializer_class = user_serializers.UserSerializer
     user_model = user_models.User
-    permission_classes = (IsAuthenticatedOrReadOnly,) 
+    # permission_classes = (IsAuthenticatedOrReadOnly,) 
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend,filters.SearchFilter]
     filterset_fields = ['fullName','walletAddress','user','investorTypeId','kycVerified','email']
     search_fields = ['fullName','walletAddress','investorTypeId','kycVerified','email']
@@ -180,7 +180,6 @@ class RegisterView(generics.GenericAPIView):
     user_model = user_models.User
 
     def post(self, request):
-
         newUser = AuthUser.objects.create_user(request.data['email'], request.data['email'], request.data['avaxpassword'])
 
         json = {
@@ -229,7 +228,7 @@ class EventView(generics.GenericAPIView):
     token_model = user_models.Token
     property_model = user_models.Property
     user_model = user_models.User
-    permission_classes = (IsAuthenticatedOrReadOnly,) 
+    # permission_classes = (IsAuthenticatedOrReadOnly,) 
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,filters.SearchFilter)
     filterset_fields = ('tokenOwner', 'eventCreator', 'eventDateTime', 'token','token__property__avalancheAssetId', 'txNFTId', 'txAvaxId','eventType','eventId','avalancheAssetId')
     search_fields = ['eventDateTime', 'token__property__propertyName', 'txNFTId', 'txAvaxId','eventType','eventId','avalancheAssetId']
@@ -319,24 +318,7 @@ class EventView(generics.GenericAPIView):
                                 json=checkBalanceJson)
                     checkBalanceResult = JSON.loads(str(checkBalanceResponse.text))
                     if float(checkBalanceResult["result"]["balance"]) < float(request.data["listedPrice"]): 
-                        raise Exception("Insufficient funds") 
-
-                    json_obj={
-                        'jsonrpc':'2.0',
-                        'id'     :1,
-                        'method' :'avm.send',
-                        'params' :
-                        { 
-                            "assetID" : 'AVAX',
-                            "amount"  : float(request.data["listedPrice"])*1000000000,
-                            "from"    : array,
-                            "to"      : tokenOwner.walletAddress,
-                            "changeAddr": tokenOwner.walletAddress,
-                            "memo"    : "AVAX has been transferred for your sale of "+token.property.avalancheAssetId,
-                            'username': 'capstone',
-                            'password': 'D835$938jemv@2'
-                        }
-                    }               
+                        raise Exception("Insufficient funds")          
 
                     array = [eventCreator.walletAddress]
                     transferAvaxResponse = requests.post(AVALANCHENODE, 
@@ -460,7 +442,7 @@ class EventView(generics.GenericAPIView):
                     'txAvaxId': None,
                     'quantity': 1,
                     'eventType': request.data['eventType'],
-                    'property': request.data['property'],
+                    'property': listedTokens[num].property.propertyId,
                     'listedPrice': request.data['listedPrice'],
                     'purchasedPrice': request.data['purchasedPrice'],
                 }
