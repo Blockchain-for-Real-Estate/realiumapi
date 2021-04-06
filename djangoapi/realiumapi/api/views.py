@@ -400,7 +400,9 @@ class EventView(generics.GenericAPIView):
                     
                     if serializer.is_valid():
                         serializer.save(property = property, token=token, tokenOwner=tokenOwner, eventCreator=eventCreator)
-                    return Response(serializer.data, status=status.HTTP_200_OK)
+
+                    
+                return Response(serializer.data, status=status.HTTP_200_OK)
 
         #if the event is not a SALE
         # elif request.data['eventType']=='OFFER':
@@ -454,7 +456,7 @@ class EventView(generics.GenericAPIView):
                     if serializer.is_valid():
                         serializer.save(property = property, token=changedToken, eventCreator=eventCreator, tokenOwner=tokenOwner)
 
-                    return Response(serializer.data, status=status.HTTP_200_OK)
+                return Response(serializer.data, status=status.HTTP_200_OK)
 
         elif request.data['eventType']=='UNLIST':
             #GET TOKEN AND CHANGE TO UNLISTED
@@ -487,7 +489,7 @@ class EventView(generics.GenericAPIView):
                     if serializer.is_valid():
                         serializer.save(property = property, token=changedToken, eventCreator=eventCreator, tokenOwner=tokenOwner)
                     
-                    return Response(serializer.data, status=status.HTTP_200_OK)
+                return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             exit
         
