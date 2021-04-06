@@ -260,7 +260,7 @@ class EventView(generics.GenericAPIView):
             txNFTId = str('')
             txAvaxId = str('')
             if len(tokensToBeSold)>0:
-                for num in range(0,len(tokensToBeSold)-1):
+                for num in range(0,len(tokensToBeSold)):
                     token = self.token_model.objects.get(pk=tokensToBeSold[num].tokenId)
                     eventCreator = self.user_model.objects.get(pk=request.data['eventCreator'])
                     tokenOwner = self.user_model.objects.get(pk=request.data['tokenOwner'])
@@ -402,7 +402,7 @@ class EventView(generics.GenericAPIView):
                         serializer.save(property = property, token=token, tokenOwner=tokenOwner, eventCreator=eventCreator)
 
                     
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                return Response(None,status=status.HTTP_200_OK)
 
         #if the event is not a SALE
         # elif request.data['eventType']=='OFFER':
@@ -429,7 +429,7 @@ class EventView(generics.GenericAPIView):
             numTokens = int(request.data['quantity'])
             listedTokens = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']))[:numTokens]
             if len(listedTokens)>0:
-                for num in range(0,len(listedTokens)-1): 
+                for num in range(0,len(listedTokens)): 
                     eventCreator = self.user_model.objects.get(pk=request.data['eventCreator'])
                     tokenOwner = self.user_model.objects.get(pk=request.data['tokenOwner'])
                     changedToken = self.token_model.objects.get(pk=listedTokens[num].tokenId)
@@ -456,14 +456,14 @@ class EventView(generics.GenericAPIView):
                     if serializer.is_valid():
                         serializer.save(property = property, token=changedToken, eventCreator=eventCreator, tokenOwner=tokenOwner)
 
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                return Response(None,status=status.HTTP_200_OK)
 
         elif request.data['eventType']=='UNLIST':
             #GET TOKEN AND CHANGE TO UNLISTED
             numTokens = int(request.data['quantity'])
             unlistedTokens = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']),listed=True)[:numTokens]
             if len(unlistedTokens)>0:
-                for num in range(0,len(unlistedTokens)-1):
+                for num in range(0,len(unlistedTokens)):
                     eventCreator = self.user_model.objects.get(pk=request.data['eventCreator'])
                     tokenOwner = self.user_model.objects.get(pk=request.data['tokenOwner'])
                     changedToken = self.token_model.objects.get(pk=unlistedTokens[num].tokenId)
@@ -489,7 +489,7 @@ class EventView(generics.GenericAPIView):
                     if serializer.is_valid():
                         serializer.save(property = property, token=changedToken, eventCreator=eventCreator, tokenOwner=tokenOwner)
                     
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                return Response(None,status=status.HTTP_200_OK)
         else:
             exit
         
