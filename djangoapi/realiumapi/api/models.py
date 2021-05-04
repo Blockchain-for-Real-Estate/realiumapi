@@ -74,7 +74,7 @@ class Event(models.Model):
                                 max_length=10,
                                 choices=EVENT_TYPES)
     token = models.ForeignKey(Token,verbose_name="token",null=True,on_delete=models.SET_NULL)
-    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='property')
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, verbose_name="property", related_name='property')
     listedPrice = models.FloatField(null=True) #this is the amount of AVAX being sent to seller
     purchasedPrice = models.FloatField(null=True)
     tokenOwner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tokenOwner') #sender of the NFT
@@ -85,5 +85,3 @@ class Event(models.Model):
     txAvaxId = models.CharField(max_length=200, null=True) #the transaction of sending the AVAX
     eventDateTime = models.DateTimeField(auto_now_add=True)
     avalancheAssetId = models.CharField(max_length=60, null=True)
-
-
