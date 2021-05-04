@@ -21,7 +21,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+# SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY='9f@slq*hpfh9te6n)$r09%7ax#42gqi@%xh6k=w(8(p!9e-f#a'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -101,16 +102,27 @@ WSGI_APPLICATION = 'realiumapi.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 #comment out when running locally
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': os.environ.get('DATEBASE_NAME'),
+#         'USER': os.environ.get('DATABASE_USER'),
+#         'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
+#         'HOST': os.environ.get('DATABASE_HOST'),
+#         'PORT': os.environ.get('DATABASE_PORT'),
+#     }
+# }
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('DATEBASE_NAME'),
-        'USER': os.environ.get('DATABASE_USER'),
-        'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
-        'HOST': os.environ.get('DATABASE_HOST'),
-        'PORT': os.environ.get('DATABASE_PORT'),
+        'NAME'='realiumdb'
+        'USER'='postgres'
+        'PASSWORD'='blockchainforrealestate2021!'
+        'HOST'='realium-prod.chqqh6vhtfye.us-east-2.rds.amazonaws.com'
+        'PORT'=5432
     }
 }
+
 
 
 # Password validation
