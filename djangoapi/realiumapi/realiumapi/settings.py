@@ -114,7 +114,7 @@ WSGI_APPLICATION = 'realiumapi.wsgi.application'
 # }
 DATABASES = {
     'default': {
-        'ENGINE': django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME'='realiumdb',
         'USER'='postgres',
         'PASSWORD'='blockchainforrealestate2021!',
