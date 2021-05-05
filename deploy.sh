@@ -1,5 +1,5 @@
 #!/bin/sh     
-sudo git pull origin master
+sudo git pull origin development
 sudo pip3 install -r requirements.txt
 cd djangoapi/realiumapi
 python3 manage.py makemigrations
