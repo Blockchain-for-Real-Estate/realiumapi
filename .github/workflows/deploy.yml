@@ -1,4 +1,4 @@
-name: AWS SSM Send-Command Example
+name: AWS SSM Send-Command Development Environment
 
 on:
   push:
