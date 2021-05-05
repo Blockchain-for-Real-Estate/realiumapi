@@ -31,6 +31,7 @@ ALLOWED_HOSTS = [
     '18.189.136.175',
     'api.realium.io',
     'https://api.realium.io',
+    '3.139.207.249'
 ]
 
 # Application definition
