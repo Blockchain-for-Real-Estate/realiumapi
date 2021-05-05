@@ -2,7 +2,7 @@ name: AWS SSM Send-Command Master Environment
 
 on:
   push:
-    branches: [master]
+    branches: [main]
 
 jobs:
   start:
@@ -18,7 +18,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           instance-ids: ${{ secrets.INSTANCE_ID }}
-          comment: Deploy the master branch
+          comment: Deploy the main branch
           working-directory: /home/ubuntu/realiumapi
-          command: /bin/sh ./deploymaster.sh
+          command: /bin/sh ./deploymain.sh
 
