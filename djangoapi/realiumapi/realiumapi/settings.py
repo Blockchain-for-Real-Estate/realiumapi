@@ -122,7 +122,7 @@ DATABASES = {
         'NAME':'postgres',
         'USER':'postgres',
         'PASSWORD':'blockchainforrealestate2021!',
-        'HOST':'realium-prod.chqqh6vhtfye.us-east-2.rds.amazonaws.com',
+        'HOST':'realiumdb-dev.chqqh6vhtfye.us-east-2.rds.amazonaws.com',
         'PORT':5432
     }
 }
