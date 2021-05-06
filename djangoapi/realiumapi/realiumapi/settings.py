@@ -109,26 +109,26 @@ WSGI_APPLICATION = 'realiumapi.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 #comment out when running locally
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': os.environ.get('DATEBASE_NAME'),
-#         'USER': os.environ.get('DATABASE_USER'),
-#         'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
-#         'HOST': os.environ.get('DATABASE_HOST'),
-#         'PORT': os.environ.get('DATABASE_PORT'),
-#     }
-# }
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME':'postgres',
-        'USER':'postgres',
-        'PASSWORD':'blockchainforrealestate2021!',
-        'HOST':'realiumdb-dev.chqqh6vhtfye.us-east-2.rds.amazonaws.com',
-        'PORT':5432
+        'NAME': os.environ.get('DATEBASE_NAME'),
+        'USER': os.environ.get('DATABASE_USER'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
+        'HOST': os.environ.get('DATABASE_HOST'),
+        'PORT': os.environ.get('DATABASE_PORT'),
     }
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME':'postgres',
+#         'USER':'postgres',
+#         'PASSWORD':'blockchainforrealestate2021!',
+#         'HOST':'realiumdb-dev.chqqh6vhtfye.us-east-2.rds.amazonaws.com',
+#         'PORT':5432
+#     }
+# }
 
 
 
