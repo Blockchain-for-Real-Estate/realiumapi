@@ -12,6 +12,12 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+print("dotenv_path", dotenv_path)
+load_dotenv(dotenv_path)
+sys.path.append('/home/ubuntu/realiumapi/djangoapi/realiumapi/realiumapi')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
