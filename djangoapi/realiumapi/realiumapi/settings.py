@@ -165,4 +165,4 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 STATIC_URL = '/static/'
 
-#this was a change i made :) maybe deploying will work, still working it didnt work
+#this was a change i made :) maybe deploying will work, still working it didnt work, maybe no ;)
