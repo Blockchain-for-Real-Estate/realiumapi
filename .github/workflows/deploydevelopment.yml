@@ -20,5 +20,5 @@ jobs:
           instance-ids: ${{ secrets.DEV_EC2_INSTANCE_ID }}
           comment: Deploy the development branch
           working-directory: /home/ubuntu/realiumapi
-          command: /bin/sh ./deploydevelopment.sh
+          command: /bin/sh ./deploy.sh
 
