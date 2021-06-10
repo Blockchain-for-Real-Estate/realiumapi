@@ -16,13 +16,13 @@ urlpatterns = [
     # path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('auth/', obtain_auth_token, name='api_token_auth'),
-    path('tokens/', views.TokenView.as_view()),
+    # path('tokens/', views.TokenView.as_view()),
     # path('assets/<str:pk>/transactions', views.AssetView.as_view(), name="asset-transactions"),
-    path('tokens/<str:pk>', views.TokenView.as_view(), name="put"),
+    # path('tokens/<str:pk>', views.TokenView.as_view(), name="put"),
     # path('users/<str:pk>', views.UserView.as_view(), name="user-detail"),
     path('users/', views.UserView.as_view()),
     path('properties/', views.PropertyView.as_view()),
     path('register/', views.RegisterView.as_view()),
     # path('transactions/<str:pk>', views.TransactionView.as_view(), name="transaction-detail")
-    path('events/', views.EventView.as_view())
+    # path('events/', views.EventView.as_view())
 ]

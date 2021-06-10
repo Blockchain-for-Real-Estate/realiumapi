@@ -52,36 +52,37 @@ class Property(models.Model):
     llc = models.CharField(max_length=60, null=True)
     seriesCount = models.IntegerField()
     details = models.JSONField(null=True)
+    smartContract = models.CharField(max_length=100, null=True)
 
-class Token(models.Model):
-    tokenId = models.AutoField(primary_key=True)
-    purchasedPrice = models.DecimalField(max_digits= 1000, decimal_places=2, null=True)
-    listedPrice = models.DecimalField(max_digits= 1000, decimal_places=2,null=True)
-    listed = models.BooleanField(default=False)
-    property = models.ForeignKey(Property, related_name="tokens", on_delete=models.CASCADE)
-    owner = models.ForeignKey(
-        User,
-        verbose_name="User",
-        null=True,
-        on_delete=models.SET_NULL
-    )
+# class Token(models.Model):
+#     tokenId = models.AutoField(primary_key=True)
+#     purchasedPrice = models.DecimalField(max_digits= 1000, decimal_places=2, null=True)
+#     listedPrice = models.DecimalField(max_digits= 1000, decimal_places=2,null=True)
+#     listed = models.BooleanField(default=False)
+#     property = models.ForeignKey(Property, related_name="tokens", on_delete=models.CASCADE)
+#     owner = models.ForeignKey(
+#         User,
+#         verbose_name="User",
+#         null=True,
+#         on_delete=models.SET_NULL
+#     )
         
-class Event(models.Model):
-    class Meta:
-        ordering = ['-eventDateTime']
-    eventId = models.AutoField(primary_key=True)
-    eventType = models.CharField(
-                                max_length=10,
-                                choices=EVENT_TYPES)
-    token = models.ForeignKey(Token,verbose_name="token",null=True,on_delete=models.SET_NULL)
-    property = models.ForeignKey(Property, on_delete=models.CASCADE, verbose_name="property", related_name='property')
-    listedPrice = models.FloatField(null=True) #this is the amount of AVAX being sent to seller
-    purchasedPrice = models.FloatField(null=True)
-    tokenOwner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tokenOwner') #sender of the NFT
-    eventCreator = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,related_name='eventCreator') #receiver of NFT
-    quantity = models.IntegerField(null=True)
-    avalancheAssetId = models.CharField(max_length=60, null=True)
-    txNFTId = models.CharField(max_length=200, null=True) #the transaction of sending the NFT
-    txAvaxId = models.CharField(max_length=200, null=True) #the transaction of sending the AVAX
-    eventDateTime = models.DateTimeField(auto_now_add=True)
-    avalancheAssetId = models.CharField(max_length=60, null=True)
+# class Event(models.Model):
+#     class Meta:
+#         ordering = ['-eventDateTime']
+#     eventId = models.AutoField(primary_key=True)
+#     eventType = models.CharField(
+#                                 max_length=10,
+#                                 choices=EVENT_TYPES)
+#     # token = models.ForeignKey(Token,verbose_name="token",null=True,on_delete=models.SET_NULL)
+#     property = models.ForeignKey(Property, on_delete=models.CASCADE, verbose_name="property", related_name='property')
+#     listedPrice = models.FloatField(null=True) #this is the amount of AVAX being sent to seller
+#     purchasedPrice = models.FloatField(null=True)
+#     tokenOwner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tokenOwner') #sender of the NFT
+#     eventCreator = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,related_name='eventCreator') #receiver of NFT
+#     quantity = models.IntegerField(null=True)
+#     avalancheAssetId = models.CharField(max_length=60, null=True)
+#     txNFTId = models.CharField(max_length=200, null=True) #the transaction of sending the NFT
+#     txAvaxId = models.CharField(max_length=200, null=True) #the transaction of sending the AVAX
+#     eventDateTime = models.DateTimeField(auto_now_add=True)
+#     avalancheAssetId = models.CharField(max_length=60, null=True)

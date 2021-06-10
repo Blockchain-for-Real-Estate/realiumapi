@@ -17,15 +17,15 @@ class PropertySerializer(serializers.ModelSerializer):
         fields = "__all__"
         depth = 1
         
-class TokenSerializer(serializers.ModelSerializer):
+# class TokenSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = Token
-        fields = "__all__"
-        depth = 1
+#     class Meta:
+#         model = Token
+#         fields = "__all__"
+#         depth = 1
         
-class EventSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Event
-        fields = "__all__"
-        depth = 1
+# class EventSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Event
+#         fields = "__all__"
+#         depth = 1
