@@ -1,7 +1,8 @@
 from rest_framework import serializers
 import django.contrib.auth.models as auth_models
 
-from .models import User, Token, Event, Property
+# from .models import User, Token, Event, Property
+from .models import User, Property
 
 class UserSerializer(serializers.ModelSerializer):
 

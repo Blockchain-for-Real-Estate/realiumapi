@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from rest_framework import viewsets
-from .serializers import UserSerializer, TokenSerializer, EventSerializer, PropertySerializer
-from .models import User, Token, Event, Property
+# from .serializers import UserSerializer, TokenSerializer, EventSerializer, PropertySerializer
+# from .models import User, Token, Event, Property
+from .serializers import UserSerializer, PropertySerializer
+from .models import User, Property
 from django.contrib.auth.models import User as AuthUser
 
 import requests
