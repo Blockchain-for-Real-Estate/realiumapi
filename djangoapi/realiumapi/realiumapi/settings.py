@@ -35,7 +35,8 @@ ALLOWED_HOSTS = [
     '18.189.136.175',
     'api.realium.io',
     'https://api.realium.io',
-    '3.143.21.29'
+    '3.143.21.29',
+    'https://ava.realium.io'
 ]
 
 # Application definition
