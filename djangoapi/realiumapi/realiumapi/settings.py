@@ -74,6 +74,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://app.realium.io",
     "https://realium.io",
     "http://localhost:3000",
+    'https://ava.realium.io'
 ]
 
 
