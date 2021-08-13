@@ -35,7 +35,7 @@ APIView = views.APIView
 Response = response.Response
 SessionAuth = auth.SessionAuthentication
 
-AVALANCHENODE = 'https://api.avax-test.network/ext/bc/X'
+AVALANCHENODE = 'https://ava.realium.io/ext/bc/X'
 
 class TokenView(generics.GenericAPIView):
     serializer_class = user_serializers.TokenSerializer
