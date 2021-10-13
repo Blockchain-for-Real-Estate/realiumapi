@@ -221,6 +221,14 @@ class RegisterView(generics.GenericAPIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+def resetTokenPrices(self, propertyId, tokenOwner):
+    tokensCurrentlyListed = self.token_model.objects.filter(property__propertyId=int(propertyId),owner__realiumUserId=int(tokenOwner),listed=True)
+    for token in tokensCurrentlyListed:
+        token.listed=False
+        token.price=0
+        token.save()
+
 class EventView(generics.GenericAPIView):
 
     serializer_class = user_serializers.EventSerializer
@@ -253,10 +261,14 @@ class EventView(generics.GenericAPIView):
         #Avalanche API
         #transfer NFT to receiver
         property = self.property_model.objects.get(pk=request.data["property"])
-
         if request.data['eventType']=='SALE':
             numTokens = int(request.data['quantity'])
             tokensToBeSold = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']), listedPrice=float(request.data['listedPrice']),listed=True)[:numTokens]
+            try:
+                if numTokens!=len(tokensToBeSold):
+                    raise Exception("Number of tokens does not match tokens up for sale.")
+            except:
+                print ("Number of tokens does not match tokens up for sale.",err)
             txNFTId = str('')
             txAvaxId = str('')
             if len(tokensToBeSold)>0:
@@ -319,7 +331,6 @@ class EventView(generics.GenericAPIView):
                         checkBalanceResult = JSON.loads(str(checkBalanceResponse.text))
                         if float(checkBalanceResult["result"]["balance"]) < float(request.data["listedPrice"]): 
                             raise Exception("Insufficient funds")          
-
                         array = [eventCreator.walletAddress]
                         transferAvaxResponse = requests.post(AVALANCHENODE, 
                                                 json={
@@ -333,7 +344,7 @@ class EventView(generics.GenericAPIView):
                                                             "from"    : array,
                                                             "to"      : tokenOwner.walletAddress,
                                                             "changeAddr": tokenOwner.walletAddress,
-                                                            "memo"    : "AVAX has been transferred for your sale of "+token.property.avalancheAssetId,
+                                                            "memo"    : "AVAX has been transferred for your sale of "+token.property.avalancheAssetId+" for "+str(int(float(request.data["listedPrice"])*1000000000)),
                                                             'username': 'capstone',
                                                             'password': 'D835$938jemv@2'
                                                         }
@@ -374,6 +385,8 @@ class EventView(generics.GenericAPIView):
                         txResponse = JSON.loads(str(transferBackNFTResponse.text))
                         raise Exception("Insufficient funds")
                         exit
+
+                resetTokenPrices(self, request.data['property'], int(request.data['tokenOwner']))
 
                 saleEvent_dict = {
                     'token' : None,
@@ -425,6 +438,7 @@ class EventView(generics.GenericAPIView):
         elif request.data['eventType']=='LIST':
             #GET TOKEN AND CHANGE TO LISTED
             numTokens = int(request.data['quantity'])
+            resetTokenPrices(self, int(request.data['property']), int(request.data['tokenOwner']))
             listedTokens = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']))[:numTokens]
             if len(listedTokens)>0:
                 for num in range(0,len(listedTokens)): 
@@ -458,6 +472,7 @@ class EventView(generics.GenericAPIView):
 
         elif request.data['eventType']=='UNLIST':
             #GET TOKEN AND CHANGE TO UNLISTED
+            resetTokenPrices(self, int(request.data['property']), int(request.data['tokenOwner']))
             numTokens = int(request.data['quantity'])
             unlistedTokens = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']),listed=True)[:numTokens]
             if len(unlistedTokens)>0:
@@ -486,7 +501,7 @@ class EventView(generics.GenericAPIView):
                 )
                 if serializer.is_valid():
                     serializer.save(property = property, token=changedToken, eventCreator=eventCreator, tokenOwner=tokenOwner)
-                    
+
                 return Response(serializer.data,status=status.HTTP_200_OK)
         else:
             exit
