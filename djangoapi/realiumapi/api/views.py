@@ -210,24 +210,24 @@ class RegisterView(generics.GenericAPIView):
         }
 
 
-        # send_avax_json = {
-        #     "jsonrpc":"2.0",
-        #     "id"     :1,
-        #     "method" :"avm.send",
-        #     "params" :{ 
-        #         "assetID" : "AVAX",
-        #         "amount"  : 5000000000,
-        #         "from"    : ["X-fuji16eaqfum6a0zyltut88ps7zfn9mqffqp20nf63f"],
-        #         "to"      : walletAddress,
-        #         "changeAddr": "X-fuji16eaqfum6a0zyltut88ps7zfn9mqffqp20nf63f",
-        #         "memo"    : "Initial AVAX in wallet for Realium.",
-        #         "username": "capstone",
-        #         "password": "D835$938jemv@2"
-        #     }
-        # }
+        send_avax_json = {
+            "jsonrpc":"2.0",
+            "id"     :1,
+            "method" :"avm.send",
+            "params" :{ 
+                "assetID" : "AVAX",
+                "amount"  : 5000000000,
+                "from"    : ["X-fuji16eaqfum6a0zyltut88ps7zfn9mqffqp20nf63f"],
+                "to"      : walletAddress,
+                "changeAddr": "X-fuji16eaqfum6a0zyltut88ps7zfn9mqffqp20nf63f",
+                "memo"    : "Initial AVAX in wallet for Realium.",
+                "username": "capstone",
+                "password": "D835$938jemv@2"
+            }
+        }
 
-        # sentInitialAvax = requests.post(AVALANCHENODE, 
-        #                         json=send_avax_json)
+        sentInitialAvax = requests.post(AVALANCHENODE, 
+                                json=send_avax_json)
 
         query_dict = QueryDict('', mutable=True)
         query_dict.update(user_dict)
