@@ -56,7 +56,7 @@ class Property(models.Model):
 class Token(models.Model):
     tokenId = models.AutoField(primary_key=True)
     purchasedPrice = models.DecimalField(max_digits= 1000, decimal_places=2, null=True)
-    listedPrice = models.DecimalField(max_digits= 1000, decimal_places=2,null=True)
+    listedPrice = models.FloatField(max_digits= 1000, decimal_places=2,null=True)
     listed = models.BooleanField(default=False)
     property = models.ForeignKey(Property, related_name="tokens", on_delete=models.CASCADE)
     owner = models.ForeignKey(
