@@ -352,11 +352,11 @@ class EventView(generics.GenericAPIView):
                         if float(checkBalanceResult["result"]["balance"]) < float(request.data["listedPrice"]): 
                             raise Exception("Insufficient funds")          
                         array = [eventCreator.walletAddress]
-                        transferAvaxResponse = requests.post(AVALANCHENODE, 
+                        transferAvaxResponse = requests.post(AVALANCHENODE+"/wallet", 
                                                 json={
                                                         'jsonrpc':'2.0',
                                                         'id'     :1,
-                                                        'method' :'avm.send',
+                                                        'method' :'wallet.send',
                                                         'params' :
                                                         { 
                                                             "assetID" : 'AVAX',
