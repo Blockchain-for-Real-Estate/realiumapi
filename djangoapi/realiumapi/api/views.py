@@ -360,11 +360,11 @@ class EventView(generics.GenericAPIView):
                                                         'params' :
                                                         { 
                                                             "assetID" : 'AVAX',
-                                                            "amount"  : int(float(request.data["listedPrice"])*1000000000),
+                                                            "amount"  : int(request.data["listedPrice"]*1000000000),
                                                             "from"    : array,
                                                             "to"      : tokenOwner.walletAddress,
-                                                            "changeAddr": eventCreator.walletAddress,
-                                                            "memo"    : "AVAX has been transferred for your sale of "+token.property.avalancheAssetId+" for "+str(int(float(request.data["listedPrice"])*1000000000)),
+                                                            "changeAddr": array[0],
+                                                            "memo"    : "AVAX has been transferred for your sale of "+token.property.avalancheAssetId+" for "+str(int(request.data["listedPrice"]*1000000000)),
                                                             'username': 'capstone',
                                                             'password': 'D835$938jemv@2'
                                                         }
