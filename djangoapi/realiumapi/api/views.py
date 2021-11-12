@@ -309,7 +309,7 @@ class EventView(generics.GenericAPIView):
                                                         "from"    : array,
                                                         "to"      : eventCreator.walletAddress,
                                                         "groupID" : 0,
-                                                        "changeAddr": eventCreator.walletAddress, #which xchain?
+                                                        "changeAddr": tokenOwner.walletAddress, #which xchain?
                                                         "username": "capstone",
                                                         "password": "D835$938jemv@2"
                                                     }
