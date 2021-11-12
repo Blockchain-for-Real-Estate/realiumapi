@@ -352,27 +352,27 @@ class EventView(generics.GenericAPIView):
                         if float(checkBalanceResult["result"]["balance"]) < float(request.data["listedPrice"]): 
                             raise Exception("Insufficient funds")          
                         array = [eventCreator.walletAddress]
-                        transferAvaxResponse = requests.post(AVALANCHENODE+"/wallet", 
-                                                json={
-                                                        'jsonrpc':'2.0',
-                                                        'id'     :1,
-                                                        'method' :'wallet.send',
-                                                        'params' :
-                                                        { 
-                                                            "assetID" : 'AVAX',
-                                                            "amount"  : int(float(request.data["listedPrice"])*1000000000),
-                                                            "from"    : array,
-                                                            "to"      : tokenOwner.walletAddress,
-                                                            "changeAddr": array[0],
-                                                            "memo"    : "AVAX has been transferred for your sale of "+token.property.avalancheAssetId+" for "+str(int(float(request.data["listedPrice"])*1000000000)),
-                                                            'username': 'capstone',
-                                                            'password': 'D835$938jemv@2'
-                                                        }
-                                                    })
+                        # transferAvaxResponse = requests.post(AVALANCHENODE+"/wallet", 
+                        #                         json={
+                        #                                 'jsonrpc':'2.0',
+                        #                                 'id'     :1,
+                        #                                 'method' :'wallet.send',
+                        #                                 'params' :
+                        #                                 { 
+                        #                                     "assetID" : 'AVAX',
+                        #                                     "amount"  : int(float(request.data["listedPrice"])*1000000000),
+                        #                                     "from"    : array,
+                        #                                     "to"      : tokenOwner.walletAddress,
+                        #                                     "changeAddr": eventCreator.walletAddress,
+                        #                                     "memo"    : "AVAX has been transferred for your sale of "+token.property.avalancheAssetId+" for "+str(int(float(request.data["listedPrice"])*1000000000)),
+                        #                                     'username': 'capstone',
+                        #                                     'password': 'D835$938jemv@2'
+                        #                                 }
+                        #                             })
 
-                        txResponse = JSON.loads(str(transferAvaxResponse.text))
+                        # txResponse = JSON.loads(str(transferAvaxResponse.text))
 
-                        txAvaxId = txResponse['result']['txID']
+                        # txAvaxId = txResponse['result']['txID']
                         token_obj = self.token_model.objects.get(pk=token.tokenId)
                         #change Token owner
                         user = self.user_model.objects.get(pk=eventCreator.realiumUserId)
@@ -413,7 +413,7 @@ class EventView(generics.GenericAPIView):
                     'tokenOwner' : tokenOwner.realiumUserId, 
                     'eventCreator' : eventCreator.realiumUserId,
                     'txNFTId': txNFTId,
-                    'txAvaxId': txAvaxId,
+                    'txAvaxId': None,
                     'quantity': len(tokensToBeSold),
                     'eventType': request.data['eventType'],
                     'property': token.property.propertyId,
