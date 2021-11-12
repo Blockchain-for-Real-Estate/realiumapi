@@ -363,7 +363,7 @@ class EventView(generics.GenericAPIView):
                                                             "amount"  : int(float(request.data["listedPrice"])*1000000000),
                                                             "from"    : array,
                                                             "to"      : tokenOwner.walletAddress,
-                                                            "changeAddr": tokenOwner.walletAddress,
+                                                            "changeAddr": eventCreator.walletAddress,
                                                             "memo"    : "AVAX has been transferred for your sale of "+token.property.avalancheAssetId+" for "+str(int(float(request.data["listedPrice"])*1000000000)),
                                                             'username': 'capstone',
                                                             'password': 'D835$938jemv@2'
