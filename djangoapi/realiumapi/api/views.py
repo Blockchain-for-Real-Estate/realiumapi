@@ -283,7 +283,7 @@ class EventView(generics.GenericAPIView):
         property = self.property_model.objects.get(pk=request.data["property"])
         if request.data['eventType']=='SALE':
             numTokens = int(request.data['quantity'])
-            tokensToBeSold = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']), listedPrice=decimal(request.data['listedPrice']),listed=True)[:numTokens]
+            tokensToBeSold = self.token_model.objects.filter(property__propertyId=int(request.data['property']),owner__realiumUserId=int(request.data['tokenOwner']), listedPrice=float(request.data['listedPrice']),listed=True)[:numTokens]
             print(tokensToBeSold)
             try:
                 if numTokens!=len(tokensToBeSold):
